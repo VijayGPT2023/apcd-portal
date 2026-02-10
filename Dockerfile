@@ -32,8 +32,8 @@ RUN pnpm --filter @apcd/web build
 RUN cp -r apps/web/.next/static apps/web/.next/standalone/apps/web/.next/static || true
 RUN cp -r apps/web/public apps/web/.next/standalone/apps/web/public || true
 
-# Fix line endings for shell scripts
-RUN if [ -f scripts/docker-start.sh ]; then sed -i 's/\r$//' scripts/docker-start.sh && chmod +x scripts/docker-start.sh; fi
+# Fix line endings for shell scripts and make executable
+RUN find scripts -name '*.sh' -exec sed -i 's/\r$//' {} \; -exec chmod +x {} \;
 
 # Expose port
 EXPOSE 4000
