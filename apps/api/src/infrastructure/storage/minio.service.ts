@@ -39,7 +39,13 @@ export class MinioService implements OnModuleInit {
         secretKey: this.configService.get<string>('MINIO_SECRET_KEY', ''),
       });
 
-      const exists = await this.client.bucketExists(this.bucket);
+      // Timeout after 10s to prevent hanging on startup
+      const exists = await Promise.race([
+        this.client.bucketExists(this.bucket),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('MinIO connection timed out after 10s')), 10000),
+        ),
+      ]);
       if (!exists) {
         await this.client.makeBucket(this.bucket);
         this.logger.log(`Created MinIO bucket: ${this.bucket}`);
@@ -131,8 +137,8 @@ export class MinioService implements OnModuleInit {
     if (!fs.existsSync(filePath)) {
       this.logger.error(
         `Local file not found: "${filePath}" (objectName="${objectName}", ` +
-        `storageRoot="${this.localStoragePath}", ` +
-        `storageRootExists=${fs.existsSync(this.localStoragePath)})`,
+          `storageRoot="${this.localStoragePath}", ` +
+          `storageRootExists=${fs.existsSync(this.localStoragePath)})`,
       );
       throw new Error(`File not found: ${objectName}`);
     }

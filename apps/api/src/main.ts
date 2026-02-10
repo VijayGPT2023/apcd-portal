@@ -22,7 +22,16 @@ console.log(`DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
 
 async function bootstrap() {
   console.log('Creating NestJS application...');
-  const app = await NestFactory.create(AppModule);
+
+  // Timeout guard: if NestFactory.create hangs (e.g. DB connection), force-log after 30s
+  const startupTimer = setTimeout(() => {
+    console.error(
+      'WARNING: NestFactory.create() is taking longer than 30s - possible hang in module initialization',
+    );
+  }, 30000);
+
+  const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+  clearTimeout(startupTimer);
   console.log('NestJS application created successfully');
   const configService = app.get(ConfigService);
 
