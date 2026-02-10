@@ -46,9 +46,12 @@ export class SyncQueueManager {
     const id = await this.db.addToSyncQueue(item as SyncQueueItem);
 
     // Request Background Sync if available
+    const syncManager = (window as unknown as { SyncManager?: unknown }).SyncManager;
     if (
       'serviceWorker' in navigator &&
-      'sync' in (window as unknown as { SyncManager?: unknown }).SyncManager!
+      typeof syncManager === 'object' &&
+      syncManager !== null &&
+      'sync' in syncManager
     ) {
       try {
         const registration = await navigator.serviceWorker.ready;
