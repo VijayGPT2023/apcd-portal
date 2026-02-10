@@ -15,7 +15,7 @@ else
     sleep 5  # Wait for app to start first
     echo "=== Running migrations in background ==="
     cd /app/packages/database
-    npx prisma db push --skip-generate 2>&1 || echo "Migration warning (may be OK if schema unchanged)"
+    npx prisma db push --skip-generate --accept-data-loss 2>&1 || echo "Migration warning (may be OK if schema unchanged)"
     echo "=== Running seed ==="
     node prisma/seed-compiled.js 2>&1 || echo "Seed warning (may be OK if already seeded)"
     echo "=== Background tasks complete ==="
