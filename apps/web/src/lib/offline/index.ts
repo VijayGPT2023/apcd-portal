@@ -19,7 +19,7 @@ import { SyncQueueManager } from './sync-queue';
  * Factory function to initialize all offline infrastructure components
  */
 export function createOfflineInfra() {
-  const db = new APCDDatabase();
+  const db = APCDDatabase.getInstance();
   const syncQueue = new SyncQueueManager(db);
   const networkMonitor = NetworkMonitor.getInstance();
 

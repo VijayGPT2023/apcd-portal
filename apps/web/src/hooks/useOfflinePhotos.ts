@@ -22,7 +22,7 @@ export function useOfflinePhotos(applicationId: string): UseOfflinePhotosResult 
   const [pendingPhotos, setPendingPhotos] = useState<OfflinePhoto[]>([]);
   const [failedPhotos, setFailedPhotos] = useState<OfflinePhoto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [db] = useState(() => new APCDDatabase());
+  const [db] = useState(() => APCDDatabase.getInstance());
 
   const loadPhotos = useCallback(async () => {
     try {
