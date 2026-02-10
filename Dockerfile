@@ -41,6 +41,7 @@ EXPOSE 4000
 # Set environment
 ENV NODE_ENV=production
 ENV PORT=4000
+ENV HOSTNAME=0.0.0.0
 
 # Start the API with error capture
 CMD ["sh", "-c", "echo '=== Container starting ===' && echo \"Node: $(node --version)\" && echo \"PWD: $(pwd)\" && echo \"Main exists: $(test -f apps/api/dist/main.js && echo YES || echo NO)\" && node apps/api/dist/main.js 2>&1"]
