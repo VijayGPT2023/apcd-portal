@@ -57,13 +57,13 @@ const INITIAL_FORM: FormData = {
 };
 
 const APCD_OPTIONS = [
-  'Electrostatic Precipitators (ESP)',
-  'Bag Filters / Fabric Filters',
-  'Cyclone Separators',
-  'Wet Scrubbers',
-  'Dry Scrubbers',
-  'Hybrid / Other Technologies',
-  'Fume Extraction Systems',
+  'ESP',
+  'Bag Filter / Baghouse System',
+  'Cyclones',
+  'Wet Scrubber',
+  'Dry Scrubber',
+  'Hybrid/Other',
+  'Industrial Fume/Dust Extraction System (except APCD)',
 ];
 
 const FIRM_TYPES = [
@@ -91,7 +91,7 @@ interface BonusResult {
 function evaluateMandatory(data: FormData): MandatoryResult[] {
   return [
     { label: 'Company must be at least 3 years old', passed: data.companyAge >= 3 },
-    { label: 'Annual turnover must be at least \u20B95 Crore', passed: data.annualTurnover >= 5 },
+    { label: 'Annual turnover must be at least \u20B91 Crore', passed: data.annualTurnover >= 1 },
     { label: 'Company must be GST registered', passed: data.hasGST === true },
     { label: 'Company must not be blacklisted', passed: data.isBlacklisted === false },
     {
@@ -112,12 +112,6 @@ function evaluateBonus(data: FormData): BonusResult[] {
       earned: data.hasNABLReports === true ? 15 : 0,
       max: 15,
       met: data.hasNABLReports === true,
-    },
-    {
-      label: 'Government Project Experience',
-      earned: data.hasGovtExperience === true ? 15 : 0,
-      max: 15,
-      met: data.hasGovtExperience === true,
     },
     {
       label: 'Audited Financial Statements',
@@ -477,7 +471,7 @@ export default function CheckEligibilityPage() {
                     onChange={(v) => update('hasISO45001', v)}
                   />
                   <YesNoField
-                    label="Do you have NABL-accredited test reports?"
+                    label="Do you have any NABL-accredited test reports for the APCDs installed by your organization?"
                     value={form.hasNABLReports}
                     onChange={(v) => update('hasNABLReports', v)}
                   />
@@ -502,12 +496,6 @@ export default function CheckEligibilityPage() {
                       placeholder="e.g. 5"
                     />
                   </div>
-
-                  <YesNoField
-                    label="Do you have government project experience?"
-                    value={form.hasGovtExperience}
-                    onChange={(v) => update('hasGovtExperience', v)}
-                  />
 
                   <div className="space-y-2">
                     <Label>Number of employees</Label>
