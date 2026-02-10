@@ -39,7 +39,7 @@ export function OfflinePhotoCapture({
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dbRef = useRef(new APCDDatabase());
+  const dbRef = useRef(APCDDatabase.getInstance());
 
   const acquireGps = useCallback((): Promise<GeolocationPosition> => {
     return new Promise((resolve, reject) => {
