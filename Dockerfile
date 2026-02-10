@@ -32,5 +32,22 @@ EXPOSE 4000
 ENV NODE_ENV=production
 ENV PORT=4000
 
-# Start the API
-CMD ["node", "apps/api/dist/main.js"]
+# Diagnostic: minimal HTTP server to test if container networking works
+# If this passes healthcheck, the issue is in the NestJS app startup
+RUN echo 'const http = require("http"); \
+const port = process.env.PORT || 4000; \
+console.log("Starting diagnostic server on port " + port); \
+console.log("NODE_ENV=" + process.env.NODE_ENV); \
+console.log("DATABASE_URL set=" + !!process.env.DATABASE_URL); \
+try { \
+  require("./apps/api/dist/main.js"); \
+} catch(e) { \
+  console.error("FATAL: Failed to load main.js:", e.message); \
+  console.error(e.stack); \
+  http.createServer((req,res) => { \
+    res.writeHead(200, {"Content-Type": "application/json"}); \
+    res.end(JSON.stringify({status:"ok",error:e.message})); \
+  }).listen(port, "0.0.0.0", () => console.log("Fallback server on " + port)); \
+}' > /app/start.js
+
+CMD ["node", "/app/start.js"]
