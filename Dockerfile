@@ -25,7 +25,11 @@ RUN pnpm --filter @apcd/database db:generate
 # Build packages in order
 RUN pnpm --filter @apcd/shared build
 RUN pnpm --filter @apcd/api build
-RUN pnpm --filter @apcd/web build || echo "Web build skipped (non-critical)"
+RUN pnpm --filter @apcd/web build
+
+# Copy static files into standalone output (required for Next.js standalone mode)
+RUN cp -r apps/web/.next/static apps/web/.next/standalone/apps/web/.next/static || true
+RUN cp -r apps/web/public apps/web/.next/standalone/apps/web/public || true
 
 # Fix line endings for shell scripts
 RUN if [ -f scripts/docker-start.sh ]; then sed -i 's/\r$//' scripts/docker-start.sh && chmod +x scripts/docker-start.sh; fi

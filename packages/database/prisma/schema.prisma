@@ -763,7 +763,7 @@ model Certificate {
 
 model AuditLog {
   id              String   @id @default(uuid())
-  sequenceNumber  BigInt   @default(autoincrement()) @unique @map("sequence_number")
+  sequenceNumber  BigInt   @default(autoincrement()) @map("sequence_number")
   userId          String?  @map("user_id")
   userRole        String?  @map("user_role")
   sessionId       String?  @map("session_id")
