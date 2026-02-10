@@ -23,6 +23,7 @@ COPY . .
 RUN pnpm --filter @apcd/database db:generate
 
 # Build packages in order
+RUN pnpm --filter @apcd/database build
 RUN pnpm --filter @apcd/shared build
 RUN pnpm --filter @apcd/api build
 RUN pnpm --filter @apcd/web build
