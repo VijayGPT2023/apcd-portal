@@ -59,10 +59,15 @@ const nextConfig = {
     ];
   },
   async rewrites() {
+    // API_URL is for server-side proxy (internal networking); NEXT_PUBLIC_API_URL for direct browser calls
+    const apiUrl =
+      process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     return [
       {
-        source: '/api/v1/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/v1/:path*`,
+        // Proxy all /api/* requests to the backend API service
+        // Next.js filesystem routes (like /api/health) take precedence over rewrites
+        source: '/api/:path*',
+        destination: `${apiUrl}/api/:path*`,
       },
     ];
   },

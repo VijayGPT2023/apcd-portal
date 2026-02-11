@@ -1,6 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+// In production: NEXT_PUBLIC_API_URL is unset → '' → relative URL via Next.js rewrites (no CORS)
+// In development: NEXT_PUBLIC_API_URL=http://localhost:4000 → direct call to API server
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,

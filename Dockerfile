@@ -22,6 +22,10 @@ COPY . .
 # Generate Prisma client
 RUN pnpm --filter @apcd/database db:generate
 
+# Build args for API URL (Railway passes service env vars as build args)
+ARG NEXT_PUBLIC_API_URL
+ARG API_URL
+
 # Build packages in order
 RUN pnpm --filter @apcd/database build
 RUN pnpm --filter @apcd/shared build
