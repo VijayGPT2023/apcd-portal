@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+
 import { CreateOemProfileDto } from './dto/create-oem-profile.dto';
 
 @Injectable()
@@ -19,10 +21,13 @@ export class OemProfileService {
     const existing = await this.prisma.oemProfile.findUnique({ where: { userId } });
     if (existing) throw new ConflictException('OEM profile already exists for this user');
 
+    const { firmType, firmSize, ...rest } = dto;
     return this.prisma.oemProfile.create({
       data: {
-        userId,
-        ...dto,
+        ...rest,
+        firmType: firmType as unknown as Prisma.OemProfileCreateInput['firmType'],
+        firmSize: firmSize as unknown as Prisma.OemProfileCreateInput['firmSize'],
+        user: { connect: { id: userId } },
       },
     });
   }
@@ -33,7 +38,7 @@ export class OemProfileService {
 
     return this.prisma.oemProfile.update({
       where: { userId },
-      data: dto,
+      data: dto as Prisma.OemProfileUpdateInput,
     });
   }
 

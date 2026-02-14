@@ -115,8 +115,8 @@ export function Step5InstallationExperience({ applicationId, onNext }: StepProps
       <div>
         <h2 className="text-xl font-bold">Installation Experience</h2>
         <p className="text-muted-foreground">
-          Provide details of at least 3 APCD installations. More entries strengthen your
-          application.
+          Provide details of at least 3 APCD installations in last 5 years (preferably in
+          Delhi-NCR). More entries strengthen your application.
         </p>
       </div>
 

@@ -44,16 +44,17 @@ export interface DocumentRequirement {
   description: string;
   mandatory: boolean;
   maxFiles: number;
-  acceptedTypes: string[];        // MIME types
-  requiresGeoTag?: boolean;       // For factory photos
-  annexureRef?: string;           // e.g., "Annexure 4"
+  acceptedTypes: string[]; // MIME types
+  requiresGeoTag?: boolean; // For factory photos
+  annexureRef?: string; // e.g., "Annexure 4"
 }
 
 export const DOCUMENT_REQUIREMENTS: DocumentRequirement[] = [
   {
     type: DocumentType.COMPANY_REGISTRATION,
     label: 'Company Registration Certificate',
-    description: 'Certificate of Incorporation / Udyam (if MSME) / DPIIT Startup Recognition',
+    description:
+      'Company Registration Certificate (Udyam and DPIIT certificates to be uploaded separately under Category Declarations)',
     mandatory: true,
     maxFiles: 3,
     acceptedTypes: ['application/pdf', 'image/jpeg', 'image/png'],
@@ -102,16 +103,16 @@ export const DOCUMENT_REQUIREMENTS: DocumentRequirement[] = [
   },
   {
     type: DocumentType.TURNOVER_CERTIFICATE,
-    label: 'Year-wise Turnover Certificate',
-    description: 'Last 3 years financial statements (CA-certified with UDIN)',
+    label: 'Audited Financial Statements (last 3 years)',
+    description: 'Last 3 years audited financial statements (CA-certified with UDIN)',
     mandatory: true,
     maxFiles: 5,
     acceptedTypes: ['application/pdf'],
   },
   {
     type: DocumentType.ISO_CERTIFICATION,
-    label: 'Manufacturing Plant Certifications',
-    description: 'ISO 9001, ISO 14001, OHSAS/ISO 45001 or equivalent (at least one)',
+    label: 'ISO Certification (9001/14001/45001) or equivalent',
+    description: 'ISO 9001, ISO 14001, OHSAS/ISO 45001 or equivalent certifications (at least one)',
     mandatory: true,
     maxFiles: 5,
     acceptedTypes: ['application/pdf', 'image/jpeg', 'image/png'],
@@ -135,8 +136,8 @@ export const DOCUMENT_REQUIREMENTS: DocumentRequirement[] = [
   },
   {
     type: DocumentType.TEST_CERTIFICATE,
-    label: 'Test Certificates of APCDs',
-    description: 'NABL or EPA-accredited lab reports (not older than 5 years)',
+    label: 'NABL/EPA Accredited Laboratories Test Reports',
+    description: 'Test reports from NABL or EPA accredited laboratories (not older than 5 years)',
     mandatory: true,
     maxFiles: 10,
     acceptedTypes: ['application/pdf'],
@@ -201,8 +202,8 @@ export const DOCUMENT_REQUIREMENTS: DocumentRequirement[] = [
   },
   {
     type: DocumentType.CONSENT_TO_OPERATE,
-    label: 'Consent to Operate Certificate',
-    description: 'CTO or non-applicability undertaking (Annexure 9)',
+    label: 'Consent to Operate Certificate / Intimation Letter to Pollution Control Board',
+    description: 'CTO certificate or Intimation Letter to Pollution Control Board (Annexure 9)',
     mandatory: true,
     maxFiles: 2,
     acceptedTypes: ['application/pdf'],
@@ -269,8 +270,8 @@ export const DOCUMENT_REQUIREMENTS: DocumentRequirement[] = [
   },
   {
     type: DocumentType.ESCALATION_MECHANISM,
-    label: 'Escalation Mechanism & Corrective Actions',
-    description: 'Documented escalation process with records of past corrective actions',
+    label: 'Escalation Mechanism & Evidence of Corrective Actions',
+    description: 'Documented escalation process with evidence of past corrective actions taken',
     mandatory: true,
     maxFiles: 5,
     acceptedTypes: ['application/pdf'],
@@ -278,7 +279,7 @@ export const DOCUMENT_REQUIREMENTS: DocumentRequirement[] = [
   // Optional documents
   {
     type: DocumentType.MAKE_IN_INDIA_CERT,
-    label: 'Make in India Certificate (MII)',
+    label: 'Make in India Certificate (Class-I Local Suppliers - Annexure 3)',
     description: 'Class-I Local Supplier declaration with >=50% local content',
     mandatory: false,
     maxFiles: 1,
@@ -316,15 +317,10 @@ export const DOCUMENT_REQUIREMENTS: DocumentRequirement[] = [
 export const MANDATORY_DOCUMENTS = DOCUMENT_REQUIREMENTS.filter((d) => d.mandatory);
 export const OPTIONAL_DOCUMENTS = DOCUMENT_REQUIREMENTS.filter((d) => !d.mandatory);
 
-export const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'image/jpg',
-];
+export const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 
-export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;       // 10 MB per file
-export const MAX_TOTAL_UPLOAD_BYTES = 100 * 1024 * 1024;   // 100 MB total per application
+export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB per file
+export const MAX_TOTAL_UPLOAD_BYTES = 100 * 1024 * 1024; // 100 MB total per application
 
 // ============================================================================
 // Factory Photo Slots (6 mandatory geo-tagged photos)
@@ -339,7 +335,7 @@ export const FACTORY_PHOTO_SLOTS = [
   { slot: 'FINISHED_GOODS', label: 'Finished Goods Area', order: 6 },
 ] as const;
 
-export type FactoryPhotoSlot = typeof FACTORY_PHOTO_SLOTS[number]['slot'];
+export type FactoryPhotoSlot = (typeof FACTORY_PHOTO_SLOTS)[number]['slot'];
 
 export interface GeoValidationResult {
   hasGps: boolean;

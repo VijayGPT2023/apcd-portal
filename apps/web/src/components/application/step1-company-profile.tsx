@@ -172,24 +172,22 @@ export function Step1CompanyProfile({ applicationId: _applicationId, onSave, onN
 
       {/* Category Declarations */}
       <div className="space-y-4">
-        <h3 className="font-semibold border-b pb-2">
-          Category Declarations (for 15% discount eligibility)
-        </h3>
+        <h3 className="font-semibold border-b pb-2">Category Declarations</h3>
 
         <div className="space-y-3">
           <label className="flex items-center gap-2">
             <input type="checkbox" {...register('isMSE')} className="rounded" />
-            <span className="text-sm">Micro or Small Enterprise (MSE)</span>
-          </label>
-
-          <label className="flex items-center gap-2">
-            <input type="checkbox" {...register('isStartup')} className="rounded" />
-            <span className="text-sm">DPIIT Recognized Startup</span>
+            <span className="text-sm">Micro and Small Enterprises (MSEs)</span>
           </label>
 
           <label className="flex items-center gap-2">
             <input type="checkbox" {...register('isLocalSupplier')} className="rounded" />
-            <span className="text-sm">Local Supplier (Class-I/II)</span>
+            <span className="text-sm">Class-I Local Suppliers (with &gt;= 50% local content)</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input type="checkbox" {...register('isStartup')} className="rounded" />
+            <span className="text-sm">Startups (With valid DPIIT Startup Recognition)</span>
           </label>
         </div>
       </div>

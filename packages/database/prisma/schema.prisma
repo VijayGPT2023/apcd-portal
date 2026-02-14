@@ -74,7 +74,7 @@ enum PaymentMethod {
 
 enum DocumentType {
   // Mandatory documents (from application form pp.12-15)
-  COMPANY_REGISTRATION          // 1. Certificate of Incorporation / Udyam
+  COMPANY_REGISTRATION          // 1. Company Registration Certificate
   GST_CERTIFICATE               // 2. Valid GSTIN Certificate
   PAN_CARD                      // 2. PAN Card copy
   PAYMENT_PROOF                 // 3. Application fee transaction details
@@ -100,7 +100,7 @@ enum DocumentType {
   GST_FILING_PROOF              // 23. GST returns past 1 year
   NO_LEGAL_DISPUTES_AFFIDAVIT   // 24. Notarized (Annexure 8)
   COMPLAINT_HANDLING_POLICY     // 25. Written SOP
-  ESCALATION_MECHANISM          // 26. Escalation process + corrective actions
+  ESCALATION_MECHANISM          // 26. Escalation Mechanism & Evidence of Corrective Actions
   // Optional
   MAKE_IN_INDIA_CERT            // Annexure 3 (Class-I Local Supplier)
   STARTUP_RECOGNITION           // DPIIT Startup Recognition
@@ -140,7 +140,6 @@ enum FirmType {
 }
 
 enum FirmSize {
-  COTTAGE
   MICRO
   SMALL
   MEDIUM
@@ -510,7 +509,8 @@ model FieldVerificationSite {
   applicationId           String   @map("application_id")
   slNo                    Int      @map("sl_no")           // 1, 2, or 3
   industryName            String   @map("industry_name")
-  location                String
+  location                String                            // City, State
+  address                 String?                           // Full address
   industryRepName         String?  @map("industry_rep_name")
   industryRepDesignation  String?  @map("industry_rep_designation")
   industryRepMobile       String?  @map("industry_rep_mobile")

@@ -2,13 +2,23 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Save, Building2, MapPin, FileText } from 'lucide-react';
+import {
+  Loader2,
+  Save,
+  Building2,
+  MapPin,
+  FileText,
+  Upload,
+  CheckCircle,
+  IndianRupee,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -32,7 +42,6 @@ const FIRM_TYPES = [
 ];
 
 const FIRM_SIZES = [
-  { value: 'COTTAGE', label: 'Cottage' },
   { value: 'MICRO', label: 'Micro' },
   { value: 'SMALL', label: 'Small' },
   { value: 'MEDIUM', label: 'Medium' },
@@ -188,6 +197,25 @@ export default function ProfilePage() {
   const isStartup = watch('isStartup');
   const isLocalSupplier = watch('isLocalSupplier');
 
+  // Category certificate upload state
+  const [categoryFiles, setCategoryFiles] = useState<
+    Record<string, { name: string; status: string }>
+  >({});
+  const udyamFileRef = useRef<HTMLInputElement>(null);
+  const annexure3FileRef = useRef<HTMLInputElement>(null);
+  const dpiitFileRef = useRef<HTMLInputElement>(null);
+  const gstFileRef = useRef<HTMLInputElement>(null);
+  const panFileRef = useRef<HTMLInputElement>(null);
+
+  const handleCategoryFileUpload = async (category: string, file: File) => {
+    // File selection is recorded here; actual upload happens during application (Step 3: Documents)
+    setCategoryFiles((prev) => ({ ...prev, [category]: { name: file.name, status: 'success' } }));
+    toast({
+      title: 'File selected',
+      description: `${file.name} noted. This document will be uploaded during your empanelment application (Documents step).`,
+    });
+  };
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -271,12 +299,70 @@ export default function ProfilePage() {
                   {errors.gstRegistrationNo && (
                     <p className="text-sm text-red-500">{errors.gstRegistrationNo.message}</p>
                   )}
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      ref={gstFileRef}
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="hidden"
+                      onChange={(e) =>
+                        e.target.files?.[0] && handleCategoryFileUpload('gst', e.target.files[0])
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => gstFileRef.current?.click()}
+                    >
+                      <Upload className="h-3 w-3 mr-1" /> Upload GST Certificate
+                    </Button>
+                    {categoryFiles['gst'] && (
+                      <span
+                        className={`text-xs flex items-center gap-1 ${categoryFiles['gst'].status === 'success' ? 'text-green-600' : 'text-muted-foreground'}`}
+                      >
+                        {categoryFiles['gst'].status === 'success' && (
+                          <CheckCircle className="h-3 w-3" />
+                        )}
+                        {categoryFiles['gst'].name}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="panNo">PAN Number *</Label>
                   <Input id="panNo" {...register('panNo')} placeholder="AABCU9603R" />
                   {errors.panNo && <p className="text-sm text-red-500">{errors.panNo.message}</p>}
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      ref={panFileRef}
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="hidden"
+                      onChange={(e) =>
+                        e.target.files?.[0] && handleCategoryFileUpload('pan', e.target.files[0])
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => panFileRef.current?.click()}
+                    >
+                      <Upload className="h-3 w-3 mr-1" /> Upload PAN Card
+                    </Button>
+                    {categoryFiles['pan'] && (
+                      <span
+                        className={`text-xs flex items-center gap-1 ${categoryFiles['pan'].status === 'success' ? 'text-green-600' : 'text-muted-foreground'}`}
+                      >
+                        {categoryFiles['pan'].status === 'success' && (
+                          <CheckCircle className="h-3 w-3" />
+                        )}
+                        {categoryFiles['pan'].name}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -307,7 +393,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="firmAreaSqm">Firm Area (sq.m)</Label>
+                  <Label htmlFor="firmAreaSqm">Manufacturing Plant Area (sq.m)</Label>
                   <Input id="firmAreaSqm" type="number" {...register('firmAreaSqm')} />
                 </div>
 
@@ -391,46 +477,69 @@ export default function ProfilePage() {
                 <FileText className="h-5 w-5" />
                 Category Declarations
               </CardTitle>
-              <CardDescription>For 15% discount eligibility on empanelment fees</CardDescription>
+              <CardDescription>
+                Select applicable category and upload supporting documents
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
+                {/* MSE */}
                 <label className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer">
                   <input type="checkbox" {...register('isMSE')} className="rounded h-4 w-4" />
                   <div>
-                    <p className="font-medium">Micro or Small Enterprise (MSE)</p>
-                    <p className="text-sm text-muted-foreground">Registered under MSME Act</p>
-                  </div>
-                </label>
-
-                {isMSE && (
-                  <div className="ml-7 space-y-2">
-                    <Label htmlFor="udyamRegistrationNo">Udyam Registration No.</Label>
-                    <Input
-                      id="udyamRegistrationNo"
-                      {...register('udyamRegistrationNo')}
-                      placeholder="UDYAM-XX-00-0000000"
-                    />
-                  </div>
-                )}
-
-                <label className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer">
-                  <input type="checkbox" {...register('isStartup')} className="rounded h-4 w-4" />
-                  <div>
-                    <p className="font-medium">DPIIT Recognized Startup</p>
+                    <p className="font-medium">Micro and Small Enterprises (MSEs)</p>
                     <p className="text-sm text-muted-foreground">
-                      Recognized by Department for Promotion of Industry and Internal Trade
+                      Provision for uploading Udyam certificate
                     </p>
                   </div>
                 </label>
 
-                {isStartup && (
-                  <div className="ml-7 space-y-2">
-                    <Label htmlFor="dpiitRecognitionNo">DPIIT Recognition No.</Label>
-                    <Input id="dpiitRecognitionNo" {...register('dpiitRecognitionNo')} />
+                {isMSE && (
+                  <div className="ml-7 space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="udyamRegistrationNo">Udyam Registration No.</Label>
+                      <Input
+                        id="udyamRegistrationNo"
+                        {...register('udyamRegistrationNo')}
+                        placeholder="UDYAM-XX-00-0000000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Upload Udyam Certificate *</Label>
+                      <input
+                        ref={udyamFileRef}
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={(e) =>
+                          e.target.files?.[0] && handleCategoryFileUpload('mse', e.target.files[0])
+                        }
+                      />
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => udyamFileRef.current?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-1" /> Choose File
+                        </Button>
+                        {categoryFiles['mse'] && (
+                          <span
+                            className={`text-sm flex items-center gap-1 ${categoryFiles['mse'].status === 'success' ? 'text-green-600' : categoryFiles['mse'].status === 'error' ? 'text-red-600' : 'text-muted-foreground'}`}
+                          >
+                            {categoryFiles['mse'].status === 'success' && (
+                              <CheckCircle className="h-3 w-3" />
+                            )}
+                            {categoryFiles['mse'].name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
+                {/* Local Supplier */}
                 <label className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer">
                   <input
                     type="checkbox"
@@ -438,26 +547,149 @@ export default function ProfilePage() {
                     className="rounded h-4 w-4"
                   />
                   <div>
-                    <p className="font-medium">Local Supplier (Class-I/II)</p>
+                    <p className="font-medium">
+                      Class-I Local Suppliers (with &gt;= 50% local content)
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      Local content percentage 50% or more
+                      Provision for uploading undertaking as per Annexure 3
                     </p>
                   </div>
                 </label>
 
                 {isLocalSupplier && (
-                  <div className="ml-7 space-y-2">
-                    <Label htmlFor="localContentPercent">Local Content Percentage</Label>
-                    <Input
-                      id="localContentPercent"
-                      type="number"
-                      min="0"
-                      max="100"
-                      {...register('localContentPercent')}
-                      placeholder="65"
-                    />
+                  <div className="ml-7 space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="localContentPercent">Local Content Percentage</Label>
+                      <Input
+                        id="localContentPercent"
+                        type="number"
+                        min="0"
+                        max="100"
+                        {...register('localContentPercent')}
+                        placeholder="65"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Upload Undertaking (Annexure 3) *</Label>
+                      <input
+                        ref={annexure3FileRef}
+                        type="file"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={(e) =>
+                          e.target.files?.[0] &&
+                          handleCategoryFileUpload('localSupplier', e.target.files[0])
+                        }
+                      />
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => annexure3FileRef.current?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-1" /> Choose File
+                        </Button>
+                        {categoryFiles['localSupplier'] && (
+                          <span
+                            className={`text-sm flex items-center gap-1 ${categoryFiles['localSupplier'].status === 'success' ? 'text-green-600' : categoryFiles['localSupplier'].status === 'error' ? 'text-red-600' : 'text-muted-foreground'}`}
+                          >
+                            {categoryFiles['localSupplier'].status === 'success' && (
+                              <CheckCircle className="h-3 w-3" />
+                            )}
+                            {categoryFiles['localSupplier'].name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
+
+                {/* Startup */}
+                <label className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer">
+                  <input type="checkbox" {...register('isStartup')} className="rounded h-4 w-4" />
+                  <div>
+                    <p className="font-medium">Startups (With valid DPIIT Startup Recognition)</p>
+                    <p className="text-sm text-muted-foreground">
+                      Upload Certificate of Recognition by DPIIT
+                    </p>
+                  </div>
+                </label>
+
+                {isStartup && (
+                  <div className="ml-7 space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="dpiitRecognitionNo">DPIIT Recognition No.</Label>
+                      <Input id="dpiitRecognitionNo" {...register('dpiitRecognitionNo')} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Upload Certificate of Recognition by DPIIT *</Label>
+                      <input
+                        ref={dpiitFileRef}
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={(e) =>
+                          e.target.files?.[0] &&
+                          handleCategoryFileUpload('startup', e.target.files[0])
+                        }
+                      />
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => dpiitFileRef.current?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-1" /> Choose File
+                        </Button>
+                        {categoryFiles['startup'] && (
+                          <span
+                            className={`text-sm flex items-center gap-1 ${categoryFiles['startup'].status === 'success' ? 'text-green-600' : categoryFiles['startup'].status === 'error' ? 'text-red-600' : 'text-muted-foreground'}`}
+                          >
+                            {categoryFiles['startup'].status === 'success' && (
+                              <CheckCircle className="h-3 w-3" />
+                            )}
+                            {categoryFiles['startup'].name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Application Fee */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <IndianRupee className="h-5 w-5" />
+                Application Fee
+              </CardTitle>
+              <CardDescription>Non-refundable application processing fee</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-blue-900">
+                      Application Fee: ₹25,000/- + 18% GST
+                    </p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      Total: ₹29,500/- (inclusive of GST)
+                    </p>
+                    <p className="text-xs text-blue-600 mt-2">
+                      Payment to be made after profile completion and application submission.
+                      Eligible categories (MSE/Startup/Class-I Local Supplier) may avail 15%
+                      discount.
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="text-blue-700 border-blue-300">
+                    Required
+                  </Badge>
+                </div>
               </div>
             </CardContent>
           </Card>

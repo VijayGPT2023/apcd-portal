@@ -1,11 +1,13 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Check } from 'lucide-react';
+import { Check, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { apiGet } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +19,8 @@ interface Step2Props {
 
 export function Step2ApcdTypes({ applicationId: _applicationId, onSave, onNext }: Step2Props) {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [advancedTechnologies, setAdvancedTechnologies] = useState<string[]>([]);
+  const [newTechName, setNewTechName] = useState('');
 
   const { data: response, isLoading } = useQuery({
     queryKey: ['apcd-categories'],
@@ -30,12 +34,25 @@ export function Step2ApcdTypes({ applicationId: _applicationId, onSave, onNext }
     );
   };
 
+  const addTechnology = () => {
+    const name = newTechName.trim();
+    if (name && !advancedTechnologies.includes(name)) {
+      setAdvancedTechnologies((prev) => [...prev, name]);
+      setNewTechName('');
+    }
+  };
+
+  const removeTechnology = (index: number) => {
+    setAdvancedTechnologies((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async () => {
     await onSave({
       apcdSelections: selectedTypes.map((typeId) => ({
         apcdTypeId: typeId,
         seekingEmpanelment: true,
       })),
+      advancedTechnologies,
     });
     onNext();
   };
@@ -104,6 +121,51 @@ export function Step2ApcdTypes({ applicationId: _applicationId, onSave, onNext }
           </div>
         ))}
       </div>
+
+      {/* New Advance/Patented/Hybrid Technologies */}
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <Label className="text-base font-semibold">
+            New Advance / Patented / Hybrid Technologies
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            If you have any new, patented, or hybrid APCD technologies not listed above, please
+            specify them here.
+          </p>
+          <div className="flex items-center gap-2">
+            <Input
+              value={newTechName}
+              onChange={(e) => setNewTechName(e.target.value)}
+              placeholder="Enter technology name"
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addTechnology}
+              disabled={!newTechName.trim()}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add
+            </Button>
+          </div>
+          {advancedTechnologies.length > 0 && (
+            <div className="space-y-2">
+              {advancedTechnologies.map((tech, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                  <span className="text-sm">{tech}</span>
+                  <button
+                    onClick={() => removeTechnology(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Summary */}
       <div className="bg-muted rounded-lg p-4">

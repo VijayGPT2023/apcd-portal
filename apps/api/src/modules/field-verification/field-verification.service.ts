@@ -57,7 +57,16 @@ export class FieldVerificationService {
       data: sites.map((site, index) => ({
         applicationId,
         slNo: index + 1,
-        ...site,
+        industryName: site.industryName,
+        location: site.location,
+        address: site.address || null,
+        industryRepName: site.industryRepName || null,
+        industryRepDesignation: site.industryRepDesignation || null,
+        industryRepMobile: site.industryRepMobile || null,
+        installationDate: site.installationDate || null,
+        apcdType: site.apcdType || '',
+        technologyType: site.technologyType || null,
+        designCapacity: site.designCapacity || null,
       })),
     });
     return this.getSitesForApplication(applicationId);

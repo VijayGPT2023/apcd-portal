@@ -112,8 +112,9 @@ export function Step7FieldVerificationSites({ applicationId, onNext }: StepProps
       <div>
         <h2 className="text-xl font-bold">Field Verification Sites</h2>
         <p className="text-muted-foreground">
-          Provide up to 3 installation sites where APCD systems can be verified by field inspectors.
-          At least one site is required.
+          Out of the installation experience provided, the bidder shall propose up to three (3)
+          installation sites where APCD systems can be verified by the Field Verification Team. At
+          least one (1) site must be offered for verification.
         </p>
       </div>
 

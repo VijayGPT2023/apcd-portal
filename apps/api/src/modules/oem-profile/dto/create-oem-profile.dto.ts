@@ -1,7 +1,15 @@
-import {
-  IsString, IsOptional, IsNumber, IsBoolean, IsEnum, Min, Max, MinLength, Matches,
-} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsEnum,
+  Min,
+  Max,
+  MinLength,
+  Matches,
+} from 'class-validator';
 
 enum FirmType {
   PROPRIETARY = 'PROPRIETARY',
@@ -12,7 +20,6 @@ enum FirmType {
 }
 
 enum FirmSize {
-  COTTAGE = 'COTTAGE',
   MICRO = 'MICRO',
   SMALL = 'SMALL',
   MEDIUM = 'MEDIUM',
