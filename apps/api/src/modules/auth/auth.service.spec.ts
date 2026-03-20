@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -59,7 +55,8 @@ describe('AuthService', () => {
             get: jest.fn((key: string, defaultValue?: string) => {
               if (key === 'JWT_SECRET') return 'test-jwt-secret';
               if (key === 'JWT_ACCESS_EXPIRY') return defaultValue ?? '15m';
-              if (key === 'SEED_SECRET') return defaultValue ?? 'apcd-seed-2025';
+              if (key === 'SEED_SECRET') return 'apcd-seed-2025';
+              if (key === 'NODE_ENV') return 'development';
               return defaultValue;
             }),
           },
@@ -342,30 +339,30 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException when no valid token is found', async () => {
       (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.refreshTokens(mockUser.id, 'invalid-token'),
-      ).rejects.toThrow(UnauthorizedException);
-      await expect(
-        service.refreshTokens(mockUser.id, 'invalid-token'),
-      ).rejects.toThrow('Invalid refresh token');
+      await expect(service.refreshTokens(mockUser.id, 'invalid-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      await expect(service.refreshTokens(mockUser.id, 'invalid-token')).rejects.toThrow(
+        'Invalid refresh token',
+      );
     });
 
     it('should throw UnauthorizedException for an expired token (filtered by query)', async () => {
       // The Prisma query filters expiresAt > now, so an expired token returns null
       (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.refreshTokens(mockUser.id, 'expired-token'),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens(mockUser.id, 'expired-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException for a revoked token (filtered by query)', async () => {
       // The Prisma query filters revokedAt: null, so a revoked token returns null
       (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.refreshTokens(mockUser.id, 'revoked-token'),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens(mockUser.id, 'revoked-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should generate tokens using the user data from the stored token', async () => {
@@ -470,18 +467,14 @@ describe('AuthService', () => {
     });
 
     it('should throw ForbiddenException when secret is wrong', async () => {
-      await expect(service.resetTestPasswords('wrong-secret')).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.resetTestPasswords('wrong-secret')).rejects.toThrow(ForbiddenException);
       await expect(service.resetTestPasswords('wrong-secret')).rejects.toThrow(
         'Invalid seed secret',
       );
     });
 
     it('should not call any database operations when secret is wrong', async () => {
-      await expect(service.resetTestPasswords('wrong-secret')).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.resetTestPasswords('wrong-secret')).rejects.toThrow(ForbiddenException);
 
       expect(prisma.user.upsert).not.toHaveBeenCalled();
       expect(bcrypt.hash).not.toHaveBeenCalled();
@@ -604,10 +597,34 @@ describe('AuthService', () => {
       }
     });
 
-    it('should use SEED_SECRET from ConfigService with correct default', async () => {
+    it('should check NODE_ENV and SEED_SECRET from ConfigService', async () => {
       await service.resetTestPasswords(validSecret);
 
-      expect(configService.get).toHaveBeenCalledWith('SEED_SECRET', 'apcd-seed-2025');
+      expect(configService.get).toHaveBeenCalledWith('NODE_ENV');
+      expect(configService.get).toHaveBeenCalledWith('SEED_SECRET');
+    });
+
+    it('should throw ForbiddenException in production environment', async () => {
+      (configService.get as jest.Mock).mockImplementation((key: string) => {
+        if (key === 'NODE_ENV') return 'production';
+        return undefined;
+      });
+
+      await expect(service.resetTestPasswords(validSecret)).rejects.toThrow(
+        'This endpoint is disabled in production',
+      );
+    });
+
+    it('should throw ForbiddenException when SEED_SECRET is not configured', async () => {
+      (configService.get as jest.Mock).mockImplementation((key: string) => {
+        if (key === 'NODE_ENV') return 'development';
+        if (key === 'SEED_SECRET') return undefined;
+        return undefined;
+      });
+
+      await expect(service.resetTestPasswords(validSecret)).rejects.toThrow(
+        'SEED_SECRET environment variable is not configured',
+      );
     });
   });
 

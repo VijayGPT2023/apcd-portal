@@ -22,6 +22,9 @@ export type {
   FeeConfiguration,
   ApplicationStatusHistory,
   RefreshToken,
+  PasswordResetToken,
+  EmailChangeToken,
+  MobileOtp,
 } from '@prisma/client';
 
 export {

@@ -203,18 +203,21 @@ enum NotificationType {
 
 /// System users - all roles share this table
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  passwordHash  String   @map("password_hash")
-  role          Role
-  isActive      Boolean  @default(true) @map("is_active")
-  isVerified    Boolean  @default(false) @map("is_verified")
-  firstName     String   @map("first_name")
-  lastName      String   @map("last_name")
-  phone         String?
-  lastLoginAt   DateTime? @map("last_login_at")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(uuid())
+  email           String   @unique
+  passwordHash    String   @map("password_hash")
+  role            Role
+  isActive        Boolean  @default(true) @map("is_active")
+  isVerified      Boolean  @default(false) @map("is_verified")
+  firstName       String   @map("first_name")
+  lastName        String   @map("last_name")
+  phone           String?
+  mobile          String?
+  mobileVerified  Boolean  @default(false) @map("mobile_verified")
+  profilePhotoUrl String?  @map("profile_photo_url")
+  lastLoginAt     DateTime? @map("last_login_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   // Relations
   oemProfile          OemProfile?
@@ -232,6 +235,9 @@ model User {
   delegationsTo       Delegation[]       @relation("DelegationsTo")
   activeSessions      ActiveSession[]
   pushSubscriptions   PushSubscription[]
+  passwordResetTokens PasswordResetToken[]
+  emailChangeTokens   EmailChangeToken[]
+  mobileOtps          MobileOtp[]
 
   @@map("users")
 }
@@ -1070,4 +1076,56 @@ model PushSubscription {
   @@unique([userId, endpoint])
   @@index([userId])
   @@map("push_subscriptions")
+}
+
+// ============================================================================
+// PASSWORD RESET, EMAIL CHANGE, MOBILE OTP
+// ============================================================================
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model EmailChangeToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  newEmail  String   @map("new_email")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("email_change_tokens")
+}
+
+model MobileOtp {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  mobile    String
+  otp       String
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([mobile, otp])
+  @@map("mobile_otps")
 }

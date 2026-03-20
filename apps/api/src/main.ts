@@ -14,6 +14,13 @@ console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
 console.log(`PORT: ${process.env.PORT}`);
 console.log(`DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
 
+if (!process.env.NODE_ENV) {
+  console.warn(
+    'WARNING: NODE_ENV is not set. Defaulting to development mode. ' +
+      'Swagger API docs will be publicly accessible. Set NODE_ENV=production in your deployment.',
+  );
+}
+
 // BigInt cannot be serialized to JSON by default — this polyfill converts to Number
 // Safe for fileSizeBytes which won't exceed Number.MAX_SAFE_INTEGER
 (BigInt.prototype as any).toJSON = function () {
@@ -35,6 +42,24 @@ async function bootstrap() {
   console.log('NestJS application created successfully');
   const configService = app.get(ConfigService);
 
+  // Validate critical secrets in production
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+  if (isProduction) {
+    const jwtSecret = configService.get<string>('JWT_SECRET', '');
+    const jwtRefreshSecret = configService.get<string>('JWT_REFRESH_SECRET', '');
+    const placeholderPatterns = ['change-in-production', 'your-super-secret', 'your-very-long'];
+    const isPlaceholder = (val: string) =>
+      !val || placeholderPatterns.some((p) => val.toLowerCase().includes(p));
+
+    if (isPlaceholder(jwtSecret) || isPlaceholder(jwtRefreshSecret)) {
+      console.error(
+        'FATAL: JWT_SECRET and/or JWT_REFRESH_SECRET contain placeholder values. ' +
+          'Generate secure secrets with: openssl rand -base64 64',
+      );
+      process.exit(1);
+    }
+  }
+
   // CORS
   const appUrl = configService.get<string>('APP_URL', 'http://localhost:3000');
   const allowedOrigins = appUrl
@@ -50,7 +75,6 @@ async function bootstrap() {
   });
 
   // Security headers
-  const isProduction = configService.get<string>('NODE_ENV') === 'production';
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: 'cross-origin' },

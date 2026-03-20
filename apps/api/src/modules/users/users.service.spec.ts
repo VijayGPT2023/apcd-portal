@@ -1,4 +1,5 @@
 import { NotFoundException, ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
@@ -6,6 +7,7 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { MinioService } from '../../infrastructure/storage/minio.service';
 
 import { UsersService } from './users.service';
 
@@ -34,6 +36,17 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: PrismaService, useValue: mockDeep<PrismaClient>() },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(undefined) },
+        },
+        {
+          provide: MinioService,
+          useValue: {
+            uploadFile: jest.fn().mockResolvedValue('profile-photos/test.jpg'),
+            getPresignedUrl: jest.fn().mockResolvedValue('https://example.com/photo.jpg'),
+          },
+        },
       ],
     }).compile();
 
@@ -162,9 +175,7 @@ describe('UsersService', () => {
       const pagination = makePagination({ page: 1, limit: 100000 });
       const result = await service.findAll(pagination);
 
-      expect(prisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ take: 100000 }),
-      );
+      expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 100000 }));
       expect(result.meta.limit).toBe(100000);
       expect(result.meta.totalPages).toBe(0);
     });
@@ -209,9 +220,7 @@ describe('UsersService', () => {
 
       await service.findAll(makePagination(), undefined);
 
-      expect(prisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: {} }),
-      );
+      expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
     });
   });
 
