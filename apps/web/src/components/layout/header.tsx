@@ -3,6 +3,8 @@
 import { Bell, LogOut, User, Menu } from 'lucide-react';
 import Link from 'next/link';
 
+import { LanguageSwitcher } from './language-switcher';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -56,6 +58,9 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

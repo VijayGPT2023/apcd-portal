@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,6 +23,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { apiPost, getApiErrorMessage } from '@/lib/api';
 import { useAuthStore } from '@/store/auth-store';
+import { useLanguageStore } from '@/store/language-store';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -36,6 +38,7 @@ export default function LoginPage() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const t = useLanguageStore((s) => s.t);
 
   const {
     register,
@@ -116,10 +119,11 @@ export default function LoginPage() {
           <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center">
             <span className="text-gov-blue font-bold">NPC</span>
           </div>
-          <div>
-            <h1 className="text-xl font-bold">APCD OEM Empanelment Portal</h1>
-            <p className="text-sm text-blue-200">National Productivity Council for CPCB</p>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">{t('common.appName')}</h1>
+            <p className="text-sm text-blue-200">{t('common.orgName')}</p>
           </div>
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -127,30 +131,30 @@ export default function LoginPage() {
       <main className="flex-1 flex items-center justify-center p-4 bg-gray-50">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your account to continue</CardDescription>
+            <CardTitle className="text-2xl">{t('auth.welcomeBack')}</CardTitle>
+            <CardDescription>{t('auth.signInToContinue')}</CardDescription>
           </CardHeader>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">{t('auth.emailAddress')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('auth.enterEmail')}
                   {...register('email')}
                 />
                 {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
+                    placeholder={t('auth.enterPassword')}
                     {...register('password')}
                   />
                   <button
@@ -168,7 +172,7 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-between">
                 <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
             </CardContent>
@@ -178,17 +182,17 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
+                    {t('auth.signingIn')}
                   </>
                 ) : (
-                  'Sign In'
+                  t('auth.signIn')
                 )}
               </Button>
 
               <p className="text-sm text-center text-muted-foreground">
-                Don&apos;t have an account?{' '}
+                {t('auth.noAccount')}{' '}
                 <Link href="/register" className="text-primary hover:underline">
-                  Register as OEM
+                  {t('auth.registerAsOEM')}
                 </Link>
               </p>
             </CardFooter>
@@ -200,9 +204,9 @@ export default function LoginPage() {
       <footer className="bg-gray-800 text-white py-4">
         <div className="container mx-auto px-4 text-center text-sm">
           <p>
-            &copy; {new Date().getFullYear()} National Productivity Council. All rights reserved.
+            &copy; {new Date().getFullYear()} {t('common.copyright')}
           </p>
-          <p className="text-gray-400 mt-1">For CPCB - Central Pollution Control Board</p>
+          <p className="text-gray-400 mt-1">{t('common.copyrightSub')}</p>
         </div>
       </footer>
     </div>
