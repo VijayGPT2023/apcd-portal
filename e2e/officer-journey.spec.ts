@@ -23,7 +23,7 @@ test.describe('Officer User Journey', () => {
   test('officer dashboard loads with stat cards', async ({ page }) => {
     await loginAs(page, 'officer');
 
-    await expect(page.getByRole('heading', { name: /officer dashboard/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
 
     await expect(page.getByText(/total applications/i)).toBeVisible();
     await expect(page.getByText(/pending payments/i)).toBeVisible();

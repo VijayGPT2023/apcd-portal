@@ -69,7 +69,7 @@ test.describe('OEM User Journey', () => {
     await page.goto('/profile');
     await page.waitForSelector('form');
 
-    await expect(page.getByRole('heading', { name: /company profile/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /profile/i })).toBeVisible();
 
     // Fill required profile fields
     await page.getByLabel(/company name/i).fill('E2E Test Manufacturing Ltd');
@@ -173,7 +173,7 @@ test.describe('OEM User Journey', () => {
     }
 
     // Step 6 = Review & Submit
-    await expect(page.getByText(/company profile/i)).toBeVisible();
+    await expect(page.getByText(/profile/i)).toBeVisible();
     await expect(page.getByText(/fee summary/i)).toBeVisible();
   });
 

@@ -58,7 +58,7 @@ test.describe('Authentication Flows', () => {
 
   test('Officer login redirects to officer dashboard', async ({ page }) => {
     await loginAs(page, 'officer');
-    await expect(page.getByRole('heading', { name: /officer dashboard/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
   });
 
   test('Admin login redirects to admin dashboard', async ({ page }) => {

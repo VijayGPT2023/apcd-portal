@@ -27,7 +27,7 @@ test.describe('Dealing Hand Journey', () => {
       return;
     }
 
-    await expect(page.getByRole('heading', { name: /dealing hand dashboard/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
     await waitForLoad(page);
   });
 

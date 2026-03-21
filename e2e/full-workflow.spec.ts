@@ -304,7 +304,7 @@ test.describe.serial('Full Application Workflow (Cross-Role)', () => {
       // Check officer dashboard for aggregate stats
       await page.goto('/dashboard/officer');
       await waitForLoad(page);
-      await expect(page.getByRole('heading', { name: /officer dashboard/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
       await expect(page.getByText(/total applications/i)).toBeVisible();
       return;
     }

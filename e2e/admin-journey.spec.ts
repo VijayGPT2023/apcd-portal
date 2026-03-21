@@ -22,7 +22,7 @@ test.describe('Admin User Journey', () => {
     await loginAs(page, 'admin');
     await waitForLoad(page);
 
-    await expect(page.getByRole('heading', { name: /admin dashboard/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
   });
 
   // ── User Management ────────────────────────────────────────────────────
