@@ -14,6 +14,7 @@ import * as bcrypt from 'bcryptjs';
 import { PaginationDto, PaginatedResult } from '../../common/dto/pagination.dto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { MinioService } from '../../infrastructure/storage/minio.service';
+import { SmsService } from '../notifications/channels/sms.service';
 
 import { AddMobileDto } from './dto/add-mobile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -27,6 +28,7 @@ export class UsersService {
     private prisma: PrismaService,
     private configService: ConfigService,
     private minio: MinioService,
+    private smsService: SmsService,
   ) {}
 
   async findAll(pagination: PaginationDto, role?: Role): Promise<PaginatedResult<any>> {
@@ -213,34 +215,8 @@ export class UsersService {
       data: { mobile: dto.mobile, mobileVerified: false },
     });
 
-    // Send OTP via Fast2SMS
-    const fast2smsKey = this.configService.get<string>('FAST2SMS_API_KEY');
-
-    if (fast2smsKey) {
-      try {
-        const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            authorization: fast2smsKey,
-          },
-          body: JSON.stringify({
-            route: 'otp',
-            variables_values: otp,
-            numbers: dto.mobile,
-          }),
-        });
-
-        if (!response.ok) {
-          this.logger.error(`Fast2SMS error: ${response.status} ${await response.text()}`);
-        }
-      } catch (error) {
-        this.logger.error(`Failed to send OTP: ${error.message}`);
-      }
-    } else {
-      this.logger.warn('FAST2SMS_API_KEY not configured — OTP not sent via SMS');
-      this.logger.log(`OTP (dev): ${otp} for mobile ${dto.mobile}`);
-    }
+    // Send OTP via configured SMS provider
+    await this.smsService.sendOtp(dto.mobile, otp);
 
     return { message: 'OTP has been sent to your mobile number.' };
   }

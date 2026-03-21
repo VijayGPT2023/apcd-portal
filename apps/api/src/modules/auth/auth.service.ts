@@ -16,6 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { EmailService } from '../notifications/channels/email.service';
 
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -32,6 +33,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {}
 
   /**
@@ -209,46 +211,15 @@ export class AuthService {
       },
     });
 
-    // Send email via Resend
+    // Send password reset email via SMTP
     const appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
     const resetLink = `${appUrl}/reset-password?token=${token}`;
-    const resendApiKey = this.configService.get<string>('RESEND_API_KEY');
 
-    if (resendApiKey) {
-      try {
-        const response = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${resendApiKey}`,
-          },
-          body: JSON.stringify({
-            from: this.configService.get<string>(
-              'RESEND_FROM_EMAIL',
-              'APCD Portal <noreply@apcd.npc.gov.in>',
-            ),
-            to: [user.email],
-            subject: 'APCD Portal — Password Reset',
-            html: `
-              <p>Dear ${user.firstName},</p>
-              <p>You requested a password reset for your APCD Portal account.</p>
-              <p><a href="${resetLink}">Click here to reset your password</a></p>
-              <p>This link is valid for 1 hour. If you did not request this, please ignore this email.</p>
-              <p>Regards,<br/>APCD Empanelment Portal</p>
-            `,
-          }),
-        });
-
-        if (!response.ok) {
-          this.logger.error(`Resend API error: ${response.status} ${await response.text()}`);
-        }
-      } catch (error) {
-        this.logger.error(`Failed to send reset email: ${error.message}`);
-      }
-    } else {
-      this.logger.warn('RESEND_API_KEY not configured — password reset email not sent');
-      this.logger.log(`Reset link (dev): ${resetLink}`);
-    }
+    await this.emailService.sendEmail(
+      user.email,
+      'Password Reset',
+      `Dear ${user.firstName},\n\nYou requested a password reset for your APCD Portal account.\n\nClick the link below to reset your password:\n${resetLink}\n\nThis link is valid for 1 hour. If you did not request this, please ignore this email.\n\nRegards,\nAPCD Empanelment Portal`,
+    );
 
     return { message: 'If the email is registered, a reset link has been sent.' };
   }
@@ -354,46 +325,15 @@ export class AuthService {
       },
     });
 
-    // Send verification email to the NEW address via Resend
+    // Send verification email to the NEW address via SMTP
     const appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
     const verifyLink = `${appUrl}/verify-email-change?token=${token}`;
-    const resendApiKey = this.configService.get<string>('RESEND_API_KEY');
 
-    if (resendApiKey) {
-      try {
-        const response = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${resendApiKey}`,
-          },
-          body: JSON.stringify({
-            from: this.configService.get<string>(
-              'RESEND_FROM_EMAIL',
-              'APCD Portal <noreply@apcd.npc.gov.in>',
-            ),
-            to: [newEmailLower],
-            subject: 'APCD Portal — Verify Your New Email',
-            html: `
-              <p>Dear ${user.firstName},</p>
-              <p>You requested to change your APCD Portal email to this address.</p>
-              <p><a href="${verifyLink}">Click here to confirm</a></p>
-              <p>This link is valid for 24 hours. If you did not request this, please ignore this email.</p>
-              <p>Regards,<br/>APCD Empanelment Portal</p>
-            `,
-          }),
-        });
-
-        if (!response.ok) {
-          this.logger.error(`Resend API error: ${response.status} ${await response.text()}`);
-        }
-      } catch (error) {
-        this.logger.error(`Failed to send email verification: ${error.message}`);
-      }
-    } else {
-      this.logger.warn('RESEND_API_KEY not configured — email verification not sent');
-      this.logger.log(`Verify link (dev): ${verifyLink}`);
-    }
+    await this.emailService.sendEmail(
+      newEmailLower,
+      'Verify Your New Email',
+      `Dear ${user.firstName},\n\nYou requested to change your APCD Portal email to this address.\n\nClick the link below to confirm:\n${verifyLink}\n\nThis link is valid for 24 hours. If you did not request this, please ignore this email.\n\nRegards,\nAPCD Empanelment Portal`,
+    );
 
     return { message: 'A verification link has been sent to your new email address.' };
   }

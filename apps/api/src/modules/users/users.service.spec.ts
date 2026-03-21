@@ -8,6 +8,7 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { MinioService } from '../../infrastructure/storage/minio.service';
+import { SmsService } from '../notifications/channels/sms.service';
 
 import { UsersService } from './users.service';
 
@@ -45,6 +46,12 @@ describe('UsersService', () => {
           useValue: {
             uploadFile: jest.fn().mockResolvedValue('profile-photos/test.jpg'),
             getPresignedUrl: jest.fn().mockResolvedValue('https://example.com/photo.jpg'),
+          },
+        },
+        {
+          provide: SmsService,
+          useValue: {
+            sendOtp: jest.fn().mockResolvedValue(true),
           },
         },
       ],

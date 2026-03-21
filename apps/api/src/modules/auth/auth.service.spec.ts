@@ -7,6 +7,7 @@ import * as bcrypt from 'bcryptjs';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { EmailService } from '../notifications/channels/email.service';
 
 import { AuthService } from './auth.service';
 
@@ -59,6 +60,12 @@ describe('AuthService', () => {
               if (key === 'NODE_ENV') return 'development';
               return defaultValue;
             }),
+          },
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            sendEmail: jest.fn().mockResolvedValue(true),
           },
         },
       ],
