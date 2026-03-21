@@ -87,12 +87,7 @@ export default function CommitteeDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>{t('dashboard.applicationsForReview')}</CardTitle>
-              <CardDescription>
-                {t(
-                  'dashboard.pendingCommitteeEvaluation',
-                  'OEM applications pending committee evaluation',
-                )}
-              </CardDescription>
+              <CardDescription>{t('dashboard.pendingCommitteeEvaluation')}</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/committee/pending">

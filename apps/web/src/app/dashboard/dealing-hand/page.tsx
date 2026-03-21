@@ -86,12 +86,7 @@ export default function DealingHandDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>{t('dashboard.recentLabBills')}</CardTitle>
-              <CardDescription>
-                {t(
-                  'dashboard.labBillsPendingUpload',
-                  'Lab testing bills pending upload or approval',
-                )}
-              </CardDescription>
+              <CardDescription>{t('dashboard.labBillsPendingUpload')}</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/dealing-hand/lab-bills">
