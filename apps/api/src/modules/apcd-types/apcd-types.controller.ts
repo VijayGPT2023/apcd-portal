@@ -1,12 +1,16 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { APCDCategory } from '@apcd/database';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+
+import { Public } from '../../common/decorators/public.decorator';
 
 import { ApcdTypesService } from './apcd-types.service';
-import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('APCD Types')
 @Controller('apcd-types')
+@UseInterceptors(CacheInterceptor)
+@CacheTTL(300000) // 5 minutes — master data rarely changes
 export class ApcdTypesController {
   constructor(private apcdTypesService: ApcdTypesService) {}
 

@@ -1,7 +1,8 @@
+import * as crypto from 'crypto';
+
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApplicationStatus, PaymentStatus, PaymentMethod, PaymentType } from '@prisma/client';
-import * as crypto from 'crypto';
 
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 
@@ -58,7 +59,7 @@ export class PaymentsService {
   /**
    * Calculate fees for an application
    */
-  async calculateFees(applicationId: string, userId: string) {
+  async calculateFees(applicationId: string, _userId: string) {
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
       include: {
@@ -75,7 +76,9 @@ export class PaymentsService {
 
     const isDiscountEligible =
       !!application.oemProfile &&
-      (application.oemProfile.isMSE || application.oemProfile.isStartup || application.oemProfile.isLocalSupplier);
+      (application.oemProfile.isMSE ||
+        application.oemProfile.isStartup ||
+        application.oemProfile.isLocalSupplier);
 
     const apcdCount = Math.max(application.applicationApcds.length, 1);
 
@@ -264,10 +267,7 @@ export class PaymentsService {
     });
 
     if (isVerified) {
-      await this.updateApplicationStatusAfterPayment(
-        payment.applicationId,
-        payment.paymentType,
-      );
+      await this.updateApplicationStatusAfterPayment(payment.applicationId, payment.paymentType);
     }
 
     return updatedPayment;
@@ -405,7 +405,8 @@ export class PaymentsService {
 
     // If application is in SUBMITTED status and payment is verified, move to UNDER_REVIEW
     if (
-      (paymentType === PaymentType.APPLICATION_FEE || paymentType === PaymentType.EMPANELMENT_FEE) &&
+      (paymentType === PaymentType.APPLICATION_FEE ||
+        paymentType === PaymentType.EMPANELMENT_FEE) &&
       application.status === ApplicationStatus.SUBMITTED
     ) {
       await this.prisma.application.update({
@@ -422,6 +423,64 @@ export class PaymentsService {
           },
         },
       });
+    }
+  }
+
+  /**
+   * Handle Razorpay webhook events (server-to-server)
+   */
+  async handleRazorpayWebhook(body: any, signature: string) {
+    const webhookSecret = this.config.get<string>('RAZORPAY_WEBHOOK_SECRET');
+    if (!webhookSecret) {
+      this.logger.warn('RAZORPAY_WEBHOOK_SECRET not configured — webhook ignored');
+      return;
+    }
+
+    // Verify webhook signature
+    const expectedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(JSON.stringify(body))
+      .digest('hex');
+
+    if (expectedSignature !== signature) {
+      this.logger.warn('Razorpay webhook signature mismatch');
+      throw new BadRequestException('Invalid webhook signature');
+    }
+
+    const event = body.event;
+    const paymentEntity = body.payload?.payment?.entity;
+
+    if (!paymentEntity) return;
+
+    this.logger.log(`Razorpay webhook: ${event} for order ${paymentEntity.order_id}`);
+
+    if (event === 'payment.captured') {
+      const payment = await this.prisma.payment.findFirst({
+        where: { razorpayOrderId: paymentEntity.order_id },
+      });
+
+      if (payment && payment.status !== PaymentStatus.COMPLETED) {
+        await this.prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            status: PaymentStatus.COMPLETED,
+            razorpayPaymentId: paymentEntity.id,
+          },
+        });
+        this.logger.log(`Payment ${payment.id} marked COMPLETED via webhook`);
+      }
+    } else if (event === 'payment.failed') {
+      const payment = await this.prisma.payment.findFirst({
+        where: { razorpayOrderId: paymentEntity.order_id },
+      });
+
+      if (payment && payment.status !== PaymentStatus.FAILED) {
+        await this.prisma.payment.update({
+          where: { id: payment.id },
+          data: { status: PaymentStatus.FAILED },
+        });
+        this.logger.log(`Payment ${payment.id} marked FAILED via webhook`);
+      }
     }
   }
 }

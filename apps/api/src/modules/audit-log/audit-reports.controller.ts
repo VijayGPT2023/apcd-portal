@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -73,30 +74,65 @@ export class AuditReportsController {
   async exportReport(
     @Param('type') type: string,
     @Param('format') format: string,
+    @Res() res: Response,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('financialYear') financialYear?: string,
   ) {
-    // Placeholder - returns JSON for now
-    // TODO: Implement CSV and PDF export
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const end = endDate ? new Date(endDate) : new Date();
 
+    let data: any;
     switch (type) {
       case 'rti':
-        return this.auditReportsService.generateRTIReport(start, end);
+        data = await this.auditReportsService.generateRTIReport(start, end);
+        break;
       case 'cag':
         if (!financialYear) {
-          return { error: 'financialYear required for CAG report' };
+          res.status(400).json({ error: 'financialYear required for CAG report' });
+          return;
         }
-        return this.auditReportsService.generateCAGReport(financialYear);
+        data = await this.auditReportsService.generateCAGReport(financialYear);
+        break;
       case 'compliance':
-        return this.auditReportsService.generateComplianceReport(start, end);
+        data = await this.auditReportsService.generateComplianceReport(start, end);
+        break;
       default:
-        return {
+        res.status(400).json({
           error: `Unknown report type: ${type}`,
           supportedTypes: ['rti', 'cag', 'compliance'],
-        };
+        });
+        return;
     }
+
+    if (format === 'csv') {
+      const csv = this.convertToCSV(data);
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${type}-report-${Date.now()}.csv`);
+      res.send(csv);
+      return;
+    }
+
+    // Default: JSON
+    res.json(data);
+  }
+
+  private convertToCSV(data: any): string {
+    if (!data) return '';
+    // Handle array of objects
+    const items = Array.isArray(data) ? data : data.data || data.records || [data];
+    if (items.length === 0) return '';
+
+    const headers = Object.keys(items[0]);
+    const rows = items.map((item: any) =>
+      headers
+        .map((h) => {
+          const val = item[h];
+          const str = val === null || val === undefined ? '' : String(val);
+          return `"${str.replace(/"/g, '""')}"`;
+        })
+        .join(','),
+    );
+    return [headers.join(','), ...rows].join('\n');
   }
 }

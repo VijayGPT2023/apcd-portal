@@ -1,9 +1,23 @@
 import { Role } from '@apcd/database';
-import { Controller, Get, Post, Put, Param, Body, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Param,
+  Body,
+  ParseUUIDPipe,
+  Req,
+  HttpCode,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { Request } from 'express';
 
 import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 import { PaymentsService } from './payments.service';
@@ -12,6 +26,8 @@ import { PaymentsService } from './payments.service';
 @ApiBearerAuth()
 @Controller('payments')
 export class PaymentsController {
+  private readonly logger = new Logger(PaymentsController.name);
+
   constructor(private service: PaymentsService) {}
 
   @Get('bank-details')
@@ -94,5 +110,25 @@ export class PaymentsController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.service.verifyManualPayment(id, user.sub, dto.isVerified, dto.remarks);
+  }
+
+  @Public()
+  @Post('razorpay/webhook')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Razorpay webhook for payment status updates' })
+  async razorpayWebhook(@Req() req: Request, @Body() body: any) {
+    const signature = req.headers['x-razorpay-signature'] as string;
+    if (!signature) {
+      this.logger.warn('Razorpay webhook received without signature');
+      return { status: 'ignored' };
+    }
+
+    try {
+      await this.service.handleRazorpayWebhook(body, signature);
+      return { status: 'ok' };
+    } catch (error) {
+      this.logger.error(`Razorpay webhook error: ${error.message}`);
+      return { status: 'error' };
+    }
   }
 }

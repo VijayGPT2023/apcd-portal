@@ -1,5 +1,7 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { PrismaModule } from './infrastructure/database/prisma.module';
@@ -19,6 +21,7 @@ import { InstallationExperienceModule } from './modules/installation-experience/
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OemProfileModule } from './modules/oem-profile/oem-profile.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { ScheduledTasksModule } from './modules/scheduled-tasks/scheduled-tasks.module';
 import { StaffDetailsModule } from './modules/staff-details/staff-details.module';
 import { UsersModule } from './modules/users/users.module';
 import { VerificationModule } from './modules/verification/verification.module';
@@ -38,6 +41,12 @@ import { VerificationModule } from './modules/verification/verification.module';
         limit: 100, // 100 requests per minute
       },
     ]),
+
+    // Scheduling (cron jobs for expiry reminders, token cleanup)
+    ScheduleModule.forRoot(),
+
+    // In-memory cache (APCD types, fee configs — TTL 5 min)
+    CacheModule.register({ isGlobal: true, ttl: 300000 }),
 
     // Infrastructure
     PrismaModule,
@@ -62,6 +71,7 @@ import { VerificationModule } from './modules/verification/verification.module';
     DashboardModule,
     AdminModule,
     HealthModule,
+    ScheduledTasksModule,
   ],
 })
 export class AppModule {}

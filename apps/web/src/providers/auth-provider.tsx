@@ -13,6 +13,9 @@ const PUBLIC_ROUTES = [
   '/verify',
   '/check-eligibility',
   '/empaneled-oems',
+  '/privacy-policy',
+  '/terms-of-use',
+  '/sitemap',
 ];
 
 // Routes accessible per role
