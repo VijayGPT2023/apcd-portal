@@ -19,6 +19,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 
 import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
@@ -40,6 +41,7 @@ export class AttachmentsController {
 
   @Post('upload')
   @Roles(Role.OEM)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -115,7 +117,7 @@ export class AttachmentsController {
         if (!dbBuffer) {
           this.logger.error(
             `File not found on disk or in DB: objectPath="${objectPath}", ` +
-            `storagePath="${this.minioService.getLocalStoragePath()}"`,
+              `storagePath="${this.minioService.getLocalStoragePath()}"`,
           );
           res.status(404).json({
             message: 'File not found',
@@ -131,7 +133,9 @@ export class AttachmentsController {
       res.set('Content-Disposition', `inline; filename="${objectPath.split('/').pop()}"`);
       res.send(buffer);
     } catch (error: any) {
-      this.logger.error(`File download failed: objectPath="${objectPath}", error="${error.message}"`);
+      this.logger.error(
+        `File download failed: objectPath="${objectPath}", error="${error.message}"`,
+      );
       res.status(500).json({ message: 'Internal error while serving file' });
     }
   }

@@ -2,10 +2,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import compression from 'compression';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { PerformanceInterceptor } from './common/interceptors/performance.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 // Early startup logging for debugging deployment issues
@@ -74,6 +76,19 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
+  // Gzip compression for all responses
+  app.use(compression());
+
+  // JSON body size limit (1MB) — prevents payload-based DoS
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const express = require('express');
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.use(express.json({ limit: '1mb' }));
+  expressApp.use(express.urlencoded({ limit: '1mb', extended: true }));
+
+  // Graceful shutdown — close DB connections cleanly on SIGTERM
+  app.enableShutdownHooks();
+
   // Security headers
   app.use(
     helmet({
@@ -122,7 +137,7 @@ async function bootstrap() {
 
   // Global filters & interceptors
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(new PerformanceInterceptor(), new TransformInterceptor());
 
   // Swagger API docs (dev only)
   if (configService.get<string>('NODE_ENV') !== 'production') {

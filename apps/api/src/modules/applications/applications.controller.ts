@@ -1,15 +1,25 @@
+import { Role, ApplicationStatus } from '@apcd/database';
 import {
-  Controller, Get, Post, Put, Patch, Param, Body, Query, ParseUUIDPipe,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Patch,
+  Param,
+  Body,
+  Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { Role, ApplicationStatus } from '@apcd/database';
+import { Throttle } from '@nestjs/throttler';
+
+import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 import { ApplicationsService } from './applications.service';
-import { FeeCalculatorService } from './fee-calculator.service';
-import { CreateApplicationDto, UpdateApplicationDto } from './dto/create-application.dto';
 import { ApplicationFilterDto } from './dto/application-filter.dto';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
+import { UpdateApplicationDto } from './dto/create-application.dto';
+import { FeeCalculatorService } from './fee-calculator.service';
 
 @ApiTags('Applications')
 @ApiBearerAuth()
@@ -35,10 +45,7 @@ export class ApplicationsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get application details' })
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.applicationsService.findById(id, user.sub, user.role);
   }
 
@@ -55,26 +62,23 @@ export class ApplicationsController {
 
   @Post(':id/submit')
   @Roles(Role.OEM)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Submit application for review' })
-  async submit(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  async submit(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.applicationsService.submit(id, user.sub);
   }
 
   @Post(':id/resubmit')
   @Roles(Role.OEM)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Resubmit application after addressing queries' })
-  async resubmit(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  async resubmit(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.applicationsService.resubmit(id, user.sub);
   }
 
   @Post(':id/withdraw')
   @Roles(Role.OEM)
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @ApiOperation({ summary: 'Withdraw application' })
   async withdraw(
     @Param('id', ParseUUIDPipe) id: string,
@@ -99,10 +103,7 @@ export class ApplicationsController {
   @Get(':id/fees')
   @Roles(Role.OEM)
   @ApiOperation({ summary: 'Calculate fees for this application' })
-  async calculateFees(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  async calculateFees(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.feeCalculator.calculateForApplication(id, user.sub);
   }
 }

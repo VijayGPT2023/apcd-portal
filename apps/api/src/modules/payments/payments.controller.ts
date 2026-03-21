@@ -1,10 +1,12 @@
+import { Role } from '@apcd/database';
 import { Controller, Get, Post, Put, Param, Body, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { Role } from '@apcd/database';
+import { Throttle } from '@nestjs/throttler';
+
+import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 import { PaymentsService } from './payments.service';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('Payments')
 @ApiBearerAuth()
@@ -30,9 +32,7 @@ export class PaymentsController {
 
   @Get('application/:applicationId')
   @ApiOperation({ summary: 'Get payments for an application' })
-  async getPaymentsForApplication(
-    @Param('applicationId', ParseUUIDPipe) applicationId: string,
-  ) {
+  async getPaymentsForApplication(@Param('applicationId', ParseUUIDPipe) applicationId: string) {
     return this.service.getPaymentsForApplication(applicationId);
   }
 
@@ -59,6 +59,7 @@ export class PaymentsController {
 
   @Post('razorpay/create-order')
   @Roles(Role.OEM)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Create Razorpay payment order' })
   async createRazorpayOrder(
     @Body() dto: { applicationId: string; paymentType: string; amount: number },
@@ -78,11 +79,9 @@ export class PaymentsController {
 
   @Post('manual')
   @Roles(Role.OEM)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Record manual NEFT/RTGS payment' })
-  async recordManualPayment(
-    @Body() dto: any,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  async recordManualPayment(@Body() dto: any, @CurrentUser() user: JwtPayload) {
     return this.service.recordManualPayment(user.sub, dto);
   }
 
@@ -94,11 +93,6 @@ export class PaymentsController {
     @Body() dto: { isVerified: boolean; remarks?: string },
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.service.verifyManualPayment(
-      id,
-      user.sub,
-      dto.isVerified,
-      dto.remarks,
-    );
+    return this.service.verifyManualPayment(id, user.sub, dto.isVerified, dto.remarks);
   }
 }

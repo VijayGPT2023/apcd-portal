@@ -1,9 +1,11 @@
 import { Controller, Get, Post, Put, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Role, PaymentType } from '@prisma/client';
 
-import { AdminService } from './admin.service';
 import { Roles } from '../../common/decorators/roles.decorator';
+
+import { AdminService } from './admin.service';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -36,6 +38,7 @@ export class AdminController {
   }
 
   @Post('users')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Create a new user' })
   async createUser(@Body() dto: any) {
     return this.service.createUser(dto);
@@ -43,10 +46,7 @@ export class AdminController {
 
   @Put('users/:id')
   @ApiOperation({ summary: 'Update user' })
-  async updateUser(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: any,
-  ) {
+  async updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() dto: any) {
     return this.service.updateUser(id, dto);
   }
 
@@ -95,10 +95,7 @@ export class AdminController {
   // Audit Logs
   @Get('audit-logs')
   @ApiOperation({ summary: 'Get audit logs' })
-  async getAuditLogs(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  async getAuditLogs(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.service.getAuditLogs(
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 50,
