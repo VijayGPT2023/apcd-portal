@@ -22,10 +22,10 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 export default function HomePage() {
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
 
   const processSteps = [
     {

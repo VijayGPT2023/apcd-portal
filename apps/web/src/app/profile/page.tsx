@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { apiGet, apiPost, apiPut, getApiErrorMessage } from '@/lib/api';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 const FIRM_TYPES = [
   { value: 'PROPRIETARY', label: 'Proprietary' },
@@ -83,7 +83,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const [hasProfile, setHasProfile] = useState(false);
 
   const { data: profileResponse, isLoading } = useQuery({

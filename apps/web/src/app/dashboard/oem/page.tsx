@@ -19,10 +19,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatDate, formatCurrency, getStatusColor, getStatusLabel } from '@/lib/utils';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 export default function OEMDashboard() {
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const { data: response, isLoading } = useQuery({
     queryKey: ['oem-dashboard'],
     queryFn: () => apiGet<{ success: boolean; data: any }>('/dashboard/oem'),

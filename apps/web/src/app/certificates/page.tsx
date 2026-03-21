@@ -10,10 +10,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { api, apiGet } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 export default function CertificatesPage() {
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const { toast } = useToast();
 
   const { data: response, isLoading } = useQuery({

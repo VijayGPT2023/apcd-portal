@@ -9,10 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 export default function CommitteeDashboard() {
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const { data: dashboard, isLoading } = useQuery({
     queryKey: ['committee-dashboard'],
     queryFn: () => apiGet<any>('/dashboard/committee'),

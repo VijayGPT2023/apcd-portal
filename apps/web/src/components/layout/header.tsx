@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore, useUser } from '@/store/auth-store';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -24,7 +24,7 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const user = useUser();
   const logout = useAuthStore((state) => state.logout);
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
 
   const handleLogout = () => {
     logout();

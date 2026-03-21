@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/utils';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 export default function QueriesPage() {
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   // Fetch OEM's pending queries
   const { data: response, isLoading } = useQuery({
     queryKey: ['my-pending-queries'],

@@ -21,7 +21,7 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUserRole } from '@/store/auth-store';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -81,7 +81,7 @@ function getMenuItems(
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const userRole = useUserRole();
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const menuItems = getMenuItems(t);
   const items = userRole ? menuItems[userRole] || [] : [];
 

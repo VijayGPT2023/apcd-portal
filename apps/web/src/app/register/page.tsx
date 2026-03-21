@@ -23,7 +23,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { apiPost, getApiErrorMessage } from '@/lib/api';
 import { useAuthStore } from '@/store/auth-store';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 const registerSchema = z
   .object({
@@ -51,7 +51,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 

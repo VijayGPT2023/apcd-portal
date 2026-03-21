@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatDate, getStatusColor, getStatusLabel } from '@/lib/utils';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 export default function OfficerDashboard() {
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const { data: dashboard, isLoading } = useQuery({
     queryKey: ['officer-dashboard'],
     queryFn: () => apiGet<any>('/dashboard/officer'),

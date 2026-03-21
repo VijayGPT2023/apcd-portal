@@ -12,10 +12,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { apiGet } from '@/lib/api';
 import { formatDate, getStatusColor, getStatusLabel } from '@/lib/utils';
-import { useLanguageStore } from '@/store/language-store';
+import { useTranslation } from '@/store/language-store';
 
 export default function ApplicationsPage() {
-  const t = useLanguageStore((s) => s.t);
+  const t = useTranslation();
   const [search, setSearch] = useState('');
 
   const { data: applications, isLoading } = useQuery({
