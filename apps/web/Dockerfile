@@ -22,6 +22,10 @@ RUN pnpm --filter @apcd/shared build
 
 # Build Next.js app
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG API_URL
+ARG NEXT_PUBLIC_API_URL
+ENV API_URL=${API_URL}
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN pnpm --filter @apcd/web build
 
 # Production stage
