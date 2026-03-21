@@ -10,8 +10,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { api, apiGet } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function CertificatesPage() {
+  const t = useLanguageStore((s) => s.t);
   const { toast } = useToast();
 
   const { data: response, isLoading } = useQuery({
@@ -57,7 +59,7 @@ export default function CertificatesPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">My Certificates</h1>
+          <h1 className="text-2xl font-bold">{t('nav.certificates')}</h1>
           <p className="text-muted-foreground">Your empanelment certificates</p>
         </div>
         {(certificates as any[]).length === 0 ? (
@@ -94,7 +96,7 @@ export default function CertificatesPage() {
                         variant="outline"
                         onClick={() => handleDownload(cert.id, cert.certificateNumber)}
                       >
-                        <Download className="h-4 w-4 mr-1" /> Download
+                        <Download className="h-4 w-4 mr-1" /> {t('common.download')}
                       </Button>
                     </div>
                   </div>

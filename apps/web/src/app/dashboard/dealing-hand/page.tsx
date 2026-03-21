@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function DealingHandDashboard() {
+  const t = useLanguageStore((s) => s.t);
   const { data: dashboard, isLoading } = useQuery({
     queryKey: ['dealing-hand-dashboard'],
     queryFn: () => apiGet<any>('/dashboard/dealing-hand'),
@@ -31,45 +33,55 @@ export default function DealingHandDashboard() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Dealing Hand Dashboard</h1>
-          <p className="text-muted-foreground">Manage lab bills and payment support</p>
+          <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
+          <p className="text-muted-foreground">
+            {t('dashboard.manageLabBills', 'Manage lab bills and payment support')}
+          </p>
         </div>
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Lab Bills</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.pendingLabBills', 'Pending Lab Bills')}
+              </CardTitle>
               <Receipt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.pendingLabBills || 0}</div>
               <Link href="/dealing-hand/lab-bills" className="text-xs text-primary hover:underline">
-                View pending bills
+                {t('dashboard.viewPendingBills', 'View pending bills')}
               </Link>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Uploaded Lab Bills</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.uploadedLabBills', 'Uploaded Lab Bills')}
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.uploadedLabBills || 0}</div>
-              <p className="text-xs text-muted-foreground">Total bills uploaded</p>
+              <p className="text-xs text-muted-foreground">
+                {t('dashboard.totalBillsUploaded', 'Total bills uploaded')}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Payment Queries</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.paymentQueries', 'Payment Queries')}
+              </CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.paymentQueries || 0}</div>
               <Link href="/dealing-hand/payments" className="text-xs text-primary hover:underline">
-                View payment queries
+                {t('dashboard.viewPaymentQueries', 'View payment queries')}
               </Link>
             </CardContent>
           </Card>
@@ -79,12 +91,17 @@ export default function DealingHandDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Lab Bills</CardTitle>
-              <CardDescription>Lab testing bills pending upload or approval</CardDescription>
+              <CardTitle>{t('dashboard.recentLabBills', 'Recent Lab Bills')}</CardTitle>
+              <CardDescription>
+                {t(
+                  'dashboard.labBillsPendingUpload',
+                  'Lab testing bills pending upload or approval',
+                )}
+              </CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/dealing-hand/lab-bills">
-                View All
+                {t('common.viewAll')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -93,7 +110,7 @@ export default function DealingHandDashboard() {
             {(dashboard?.recentApplications?.length || 0) === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Receipt className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>No pending lab bills</p>
+                <p>{t('dashboard.noPendingLabBills', 'No pending lab bills')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -113,7 +130,9 @@ export default function DealingHandDashboard() {
                         {app.status?.replace(/_/g, ' ')}
                       </Badge>
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dealing-hand/lab-bills?app=${app.id}`}>Upload Bill</Link>
+                        <Link href={`/dealing-hand/lab-bills?app=${app.id}`}>
+                          {t('dashboard.uploadBill', 'Upload Bill')}
+                        </Link>
                       </Button>
                     </div>
                   </div>

@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { apiGet, apiPost, apiPut, getApiErrorMessage } from '@/lib/api';
+import { useLanguageStore } from '@/store/language-store';
 
 const FIRM_TYPES = [
   { value: 'PROPRIETARY', label: 'Proprietary' },
@@ -82,6 +83,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const t = useLanguageStore((s) => s.t);
   const [hasProfile, setHasProfile] = useState(false);
 
   const { data: profileResponse, isLoading } = useQuery({
@@ -230,7 +232,7 @@ export default function ProfilePage() {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Company Profile</h1>
+          <h1 className="text-2xl font-bold">{t('profile.title')}</h1>
           <p className="text-muted-foreground">
             {hasProfile
               ? 'Update your company details'
@@ -253,7 +255,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
-                Company Information
+                {t('profile.personalInfo')}
               </CardTitle>
               <CardDescription>Basic details about your company</CardDescription>
             </CardHeader>
@@ -366,7 +368,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contactNo">Contact Number *</Label>
+                  <Label htmlFor="contactNo">{t('profile.mobile')} *</Label>
                   <Input id="contactNo" {...register('contactNo')} placeholder="9876543210" />
                   {errors.contactNo && (
                     <p className="text-sm text-red-500">{errors.contactNo.message}</p>
@@ -697,7 +699,7 @@ export default function ProfilePage() {
           {/* Submit Button */}
           <div className="flex justify-end gap-4">
             <Button type="button" variant="outline" onClick={() => router.push('/dashboard/oem')}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -711,7 +713,7 @@ export default function ProfilePage() {
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {hasProfile ? 'Update Profile' : 'Save Profile'}
+                  {hasProfile ? t('profile.updateProfile') : t('common.save')}
                 </>
               )}
             </Button>

@@ -5,13 +5,15 @@ import { MapPin, ClipboardCheck, Calendar, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function FieldVerifierDashboard() {
+  const t = useLanguageStore((s) => s.t);
   const { data: dashboard, isLoading } = useQuery({
     queryKey: ['field-verifier-dashboard'],
     queryFn: () => apiGet<any>('/dashboard/field-verifier'),
@@ -32,44 +34,56 @@ export default function FieldVerifierDashboard() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold">Field Verifier Dashboard</h1>
-          <p className="text-muted-foreground">Manage your field verification assignments</p>
+          <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
+          <p className="text-muted-foreground">
+            {t('dashboard.manageFieldVerifications', 'Manage your field verification assignments')}
+          </p>
         </div>
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Assigned</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.assigned', 'Assigned')}
+              </CardTitle>
               <MapPin className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.assignedCount || 0}</div>
-              <p className="text-xs text-muted-foreground">Pending verifications</p>
+              <p className="text-xs text-muted-foreground">
+                {t('dashboard.pendingVerifications', 'Pending verifications')}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('nav.completed')}</CardTitle>
               <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.completedCount || 0}</div>
-              <p className="text-xs text-muted-foreground">Total completed</p>
+              <p className="text-xs text-muted-foreground">
+                {t('dashboard.totalCompleted', 'Total completed')}
+              </p>
             </CardContent>
           </Card>
 
           <Card className="bg-blue-50 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-800">Upcoming</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-800">
+                {t('dashboard.upcoming', 'Upcoming')}
+              </CardTitle>
               <Calendar className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-900">
                 {dashboard?.upcomingVerifications?.length || 0}
               </div>
-              <p className="text-xs text-blue-700">Scheduled visits</p>
+              <p className="text-xs text-blue-700">
+                {t('dashboard.scheduledVisits', 'Scheduled visits')}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -78,12 +92,16 @@ export default function FieldVerifierDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Upcoming Verifications</CardTitle>
-              <CardDescription>Your scheduled factory visits</CardDescription>
+              <CardTitle>
+                {t('dashboard.upcomingVerifications', 'Upcoming Verifications')}
+              </CardTitle>
+              <CardDescription>
+                {t('dashboard.scheduledFactoryVisits', 'Your scheduled factory visits')}
+              </CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/field-verification/assignments">
-                View All
+                {t('common.viewAll')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -92,7 +110,9 @@ export default function FieldVerifierDashboard() {
             {dashboard?.upcomingVerifications?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Calendar className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>No upcoming verifications scheduled</p>
+                <p>
+                  {t('dashboard.noUpcomingVerifications', 'No upcoming verifications scheduled')}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -104,9 +124,7 @@ export default function FieldVerifierDashboard() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="info">
-                            {formatDate(verification.scheduledDate)}
-                          </Badge>
+                          <Badge variant="info">{formatDate(verification.scheduledDate)}</Badge>
                         </div>
                         <p className="font-medium">
                           {verification.application?.oemProfile?.companyName}
@@ -117,7 +135,7 @@ export default function FieldVerifierDashboard() {
                       </div>
                       <Button size="sm" asChild>
                         <Link href={`/field-verification/${verification.id}`}>
-                          View Details
+                          {t('dashboard.viewDetails', 'View Details')}
                         </Link>
                       </Button>
                     </div>
@@ -131,8 +149,10 @@ export default function FieldVerifierDashboard() {
         {/* Verification Checklist */}
         <Card>
           <CardHeader>
-            <CardTitle>Verification Checklist</CardTitle>
-            <CardDescription>Items to verify during factory visit</CardDescription>
+            <CardTitle>{t('dashboard.verificationChecklist', 'Verification Checklist')}</CardTitle>
+            <CardDescription>
+              {t('dashboard.itemsToVerify', 'Items to verify during factory visit')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2">

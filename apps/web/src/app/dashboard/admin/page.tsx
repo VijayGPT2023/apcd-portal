@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatCurrency, getStatusColor } from '@/lib/utils';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function AdminDashboard() {
+  const t = useLanguageStore((s) => s.t);
   const { data: dashboard, isLoading } = useQuery({
     queryKey: ['admin-dashboard'],
     queryFn: () => apiGet<any>('/dashboard/admin'),
@@ -33,20 +35,22 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">System overview and management</p>
+            <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
+            <p className="text-muted-foreground">
+              {t('dashboard.systemOverview', 'System overview and management')}
+            </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
               <Link href="/admin/reports">
                 <BarChart3 className="mr-2 h-4 w-4" />
-                Reports
+                {t('nav.reports')}
               </Link>
             </Button>
             <Button asChild>
               <Link href="/admin/users">
                 <Users className="mr-2 h-4 w-4" />
-                Manage Users
+                {t('dashboard.manageUsers', 'Manage Users')}
               </Link>
             </Button>
           </div>
@@ -56,33 +60,40 @@ export default function AdminDashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.totalUsers', 'Total Users')}
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.userStats?.total || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.userStats?.activeToday || 0} active today
+                {dashboard?.userStats?.activeToday || 0}{' '}
+                {t('dashboard.activeToday', 'active today')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.totalApplications')}
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.totalApplications || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.todayStats?.newApplications || 0} today
+                {dashboard?.todayStats?.newApplications || 0} {t('dashboard.today', 'today')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.totalRevenue', 'Total Revenue')}
+              </CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -90,14 +101,16 @@ export default function AdminDashboard() {
                 {formatCurrency(dashboard?.paymentStats?.verifiedAmount || 0)}
               </div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.paymentStats?.verifiedCount || 0} payments
+                {dashboard?.paymentStats?.verifiedCount || 0} {t('nav.payments').toLowerCase()}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Certificates Issued</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.certificatesIssued', 'Certificates Issued')}
+              </CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -105,7 +118,8 @@ export default function AdminDashboard() {
                 {dashboard?.certificateStats?.byStatus?.ACTIVE || 0}
               </div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.certificateStats?.issuedThisMonth || 0} this month
+                {dashboard?.certificateStats?.issuedThisMonth || 0}{' '}
+                {t('dashboard.thisMonth', 'this month')}
               </p>
             </CardContent>
           </Card>
@@ -114,8 +128,10 @@ export default function AdminDashboard() {
         {/* Users by Role */}
         <Card>
           <CardHeader>
-            <CardTitle>Users by Role</CardTitle>
-            <CardDescription>Distribution of registered users</CardDescription>
+            <CardTitle>{t('dashboard.usersByRole', 'Users by Role')}</CardTitle>
+            <CardDescription>
+              {t('dashboard.distributionOfUsers', 'Distribution of registered users')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-5">
@@ -134,29 +150,31 @@ export default function AdminDashboard() {
           {/* Payment Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Payment Summary</CardTitle>
-              <CardDescription>Overview of all payments</CardDescription>
+              <CardTitle>{t('dashboard.paymentSummary', 'Payment Summary')}</CardTitle>
+              <CardDescription>
+                {t('dashboard.overviewOfPayments', 'Overview of all payments')}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <span className="text-green-800">Verified</span>
+                <span className="text-green-800">{t('payment.verified')}</span>
                 <div className="text-right">
                   <div className="font-bold text-green-900">
                     {formatCurrency(dashboard?.paymentStats?.verifiedAmount || 0)}
                   </div>
                   <div className="text-sm text-green-700">
-                    {dashboard?.paymentStats?.verifiedCount || 0} payments
+                    {dashboard?.paymentStats?.verifiedCount || 0} {t('nav.payments').toLowerCase()}
                   </div>
                 </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                <span className="text-yellow-800">Pending Verification</span>
+                <span className="text-yellow-800">{t('payment.pendingVerification')}</span>
                 <div className="text-right">
                   <div className="font-bold text-yellow-900">
                     {formatCurrency(dashboard?.paymentStats?.pendingAmount || 0)}
                   </div>
                   <div className="text-sm text-yellow-700">
-                    {dashboard?.paymentStats?.pendingCount || 0} payments
+                    {dashboard?.paymentStats?.pendingCount || 0} {t('nav.payments').toLowerCase()}
                   </div>
                 </div>
               </div>
@@ -166,8 +184,10 @@ export default function AdminDashboard() {
           {/* Certificate Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Certificate Status</CardTitle>
-              <CardDescription>Overview of all certificates</CardDescription>
+              <CardTitle>{t('dashboard.certificateStatus', 'Certificate Status')}</CardTitle>
+              <CardDescription>
+                {t('dashboard.overviewOfCertificates', 'Overview of all certificates')}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {Object.entries(dashboard?.certificateStats?.byStatus || {}).map(
@@ -188,33 +208,35 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common administrative tasks</CardDescription>
+            <CardTitle>{t('dashboard.quickActions', 'Quick Actions')}</CardTitle>
+            <CardDescription>
+              {t('dashboard.commonAdminTasks', 'Common administrative tasks')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-4">
               <Button variant="outline" className="h-auto py-4 flex flex-col" asChild>
                 <Link href="/admin/users/new">
                   <Users className="h-6 w-6 mb-2" />
-                  <span>Add User</span>
+                  <span>{t('dashboard.addUser', 'Add User')}</span>
                 </Link>
               </Button>
               <Button variant="outline" className="h-auto py-4 flex flex-col" asChild>
                 <Link href="/admin/fees">
                   <CreditCard className="h-6 w-6 mb-2" />
-                  <span>Fee Config</span>
+                  <span>{t('nav.feeConfig')}</span>
                 </Link>
               </Button>
               <Button variant="outline" className="h-auto py-4 flex flex-col" asChild>
                 <Link href="/admin/apcd-types">
                   <Settings className="h-6 w-6 mb-2" />
-                  <span>APCD Types</span>
+                  <span>{t('nav.apcdTypes')}</span>
                 </Link>
               </Button>
               <Button variant="outline" className="h-auto py-4 flex flex-col" asChild>
                 <Link href="/admin/reports">
                   <BarChart3 className="h-6 w-6 mb-2" />
-                  <span>Generate Report</span>
+                  <span>{t('dashboard.generateReport', 'Generate Report')}</span>
                 </Link>
               </Button>
             </div>

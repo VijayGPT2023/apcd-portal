@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   FileText,
@@ -17,86 +15,91 @@ import {
   Receipt,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUserRole } from '@/store/auth-store';
-import { Button } from '@/components/ui/button';
+import { useLanguageStore } from '@/store/language-store';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const adminMenu = [
-  { label: 'Dashboard', href: '/dashboard/admin', icon: LayoutDashboard },
-  { label: 'User Management', href: '/admin/users', icon: UserCog },
-  { label: 'Applications', href: '/verification', icon: FileText },
-  { label: 'Certificates', href: '/admin/certificates', icon: Award },
-  { label: 'Fee Configuration', href: '/admin/fees', icon: CreditCard },
-  { label: 'APCD Types', href: '/admin/apcd-types', icon: Settings },
-  { label: 'Reports', href: '/admin/reports', icon: BarChart3 },
-];
+function getMenuItems(
+  t: (key: string) => string,
+): Record<string, { label: string; href: string; icon: any }[]> {
+  const adminMenu = [
+    { label: t('nav.dashboard'), href: '/dashboard/admin', icon: LayoutDashboard },
+    { label: t('nav.userManagement'), href: '/admin/users', icon: UserCog },
+    { label: t('nav.applications'), href: '/verification', icon: FileText },
+    { label: t('nav.certificates'), href: '/admin/certificates', icon: Award },
+    { label: t('nav.feeConfig'), href: '/admin/fees', icon: CreditCard },
+    { label: t('nav.apcdTypes'), href: '/admin/apcd-types', icon: Settings },
+    { label: t('nav.reports'), href: '/admin/reports', icon: BarChart3 },
+  ];
 
-const menuItems: Record<string, { label: string; href: string; icon: any }[]> = {
-  OEM: [
-    { label: 'Dashboard', href: '/dashboard/oem', icon: LayoutDashboard },
-    { label: 'My Applications', href: '/applications', icon: FileText },
-    { label: 'Payments', href: '/payments', icon: CreditCard },
-    { label: 'Certificates', href: '/certificates', icon: Award },
-    { label: 'Queries', href: '/queries', icon: MessageSquare },
-    { label: 'Profile', href: '/profile', icon: Users },
-  ],
-  OFFICER: [
-    { label: 'Dashboard', href: '/dashboard/officer', icon: LayoutDashboard },
-    { label: 'Pending Verification', href: '/verification', icon: ClipboardCheck },
-    { label: 'Field Verification', href: '/field-verification', icon: MapPin },
-    { label: 'Payment Verification', href: '/payments/verify', icon: CreditCard },
-    { label: 'Queries', href: '/queries', icon: MessageSquare },
-    { label: 'Reports', href: '/reports', icon: BarChart3 },
-  ],
-  ADMIN: adminMenu,
-  SUPER_ADMIN: adminMenu,
-  COMMITTEE: [
-    { label: 'Dashboard', href: '/dashboard/committee', icon: LayoutDashboard },
-    { label: 'Pending Review', href: '/committee/pending', icon: ClipboardCheck },
-    { label: 'My Evaluations', href: '/committee/evaluations', icon: FileText },
-  ],
-  FIELD_VERIFIER: [
-    { label: 'Dashboard', href: '/dashboard/field-verifier', icon: LayoutDashboard },
-    { label: 'My Assignments', href: '/field-verification/assignments', icon: MapPin },
-    { label: 'Completed', href: '/field-verification/completed', icon: ClipboardCheck },
-  ],
-  DEALING_HAND: [
-    { label: 'Dashboard', href: '/dashboard/dealing-hand', icon: LayoutDashboard },
-    { label: 'Lab Bills', href: '/dealing-hand/lab-bills', icon: Receipt },
-    { label: 'Payment Support', href: '/dealing-hand/payments', icon: CreditCard },
-  ],
-};
+  return {
+    OEM: [
+      { label: t('nav.dashboard'), href: '/dashboard/oem', icon: LayoutDashboard },
+      { label: t('nav.applications'), href: '/applications', icon: FileText },
+      { label: t('nav.payments'), href: '/payments', icon: CreditCard },
+      { label: t('nav.certificates'), href: '/certificates', icon: Award },
+      { label: t('nav.queries'), href: '/queries', icon: MessageSquare },
+      { label: t('nav.profile'), href: '/profile', icon: Users },
+    ],
+    OFFICER: [
+      { label: t('nav.dashboard'), href: '/dashboard/officer', icon: LayoutDashboard },
+      { label: t('nav.verification'), href: '/verification', icon: ClipboardCheck },
+      { label: t('nav.fieldVerification'), href: '/field-verification', icon: MapPin },
+      { label: t('nav.paymentVerification'), href: '/payments/verify', icon: CreditCard },
+      { label: t('nav.queries'), href: '/queries', icon: MessageSquare },
+      { label: t('nav.reports'), href: '/reports', icon: BarChart3 },
+    ],
+    ADMIN: adminMenu,
+    SUPER_ADMIN: adminMenu,
+    COMMITTEE: [
+      { label: t('nav.dashboard'), href: '/dashboard/committee', icon: LayoutDashboard },
+      { label: t('nav.pendingReview'), href: '/committee/pending', icon: ClipboardCheck },
+      { label: t('nav.myEvaluations'), href: '/committee/evaluations', icon: FileText },
+    ],
+    FIELD_VERIFIER: [
+      { label: t('nav.dashboard'), href: '/dashboard/field-verifier', icon: LayoutDashboard },
+      { label: t('nav.myAssignments'), href: '/field-verification/assignments', icon: MapPin },
+      { label: t('nav.completed'), href: '/field-verification/completed', icon: ClipboardCheck },
+    ],
+    DEALING_HAND: [
+      { label: t('nav.dashboard'), href: '/dashboard/dealing-hand', icon: LayoutDashboard },
+      { label: t('nav.labBills'), href: '/dealing-hand/lab-bills', icon: Receipt },
+      { label: t('nav.paymentSupport'), href: '/dealing-hand/payments', icon: CreditCard },
+    ],
+  };
+}
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const userRole = useUserRole();
+  const t = useLanguageStore((s) => s.t);
+  const menuItems = getMenuItems(t);
   const items = userRole ? menuItems[userRole] || [] : [];
 
   return (
     <>
       {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
-          onClick={onClose}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={onClose} />}
 
       {/* Sidebar */}
       <aside
         className={cn(
           'fixed left-0 top-0 z-50 h-full w-64 bg-white border-r transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:z-auto',
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          isOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
         {/* Mobile close button */}
         <div className="flex items-center justify-between p-4 border-b md:hidden">
-          <span className="font-semibold">Menu</span>
+          <span className="font-semibold">{t('nav.menu')}</span>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
@@ -117,7 +120,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 )}
               >
                 <Icon className="h-5 w-5" />

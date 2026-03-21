@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import {
   Accordion,
   AccordionContent,
@@ -21,52 +22,52 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function HomePage() {
+  const t = useLanguageStore((s) => s.t);
+
   const processSteps = [
     {
       step: 1,
-      title: 'Register as OEM',
-      description: 'Create your account with basic company details',
+      title: t('home.step1Title'),
+      description: t('home.step1Desc'),
       icon: Users,
     },
     {
       step: 2,
-      title: 'Complete Application',
-      description: 'Fill the application form with required documents',
+      title: t('home.step2Title'),
+      description: t('home.step2Desc'),
       icon: FileText,
     },
     {
       step: 3,
-      title: 'Document Verification',
-      description: 'NPC officers verify your submitted documents',
+      title: t('home.step3Title'),
+      description: t('home.step3Desc'),
       icon: ClipboardCheck,
     },
     {
       step: 4,
-      title: 'Provisional Empanelment',
-      description:
-        'Provisional Empanelment is granted after verification and fulfillment of all required documents',
+      title: t('home.step4Title'),
+      description: t('home.step4Desc'),
       icon: Award,
     },
     {
       step: 5,
-      title: 'Field Verification',
-      description:
-        'Field verification of any of the APCD installations mentioned in the applicant\u2019s experience credentials',
+      title: t('home.step5Title'),
+      description: t('home.step5Desc'),
       icon: Shield,
     },
     {
       step: 6,
-      title: 'Committee Evaluation',
-      description: 'Expert committee reviews the field verification report',
+      title: t('home.step6Title'),
+      description: t('home.step6Desc'),
       icon: Users,
     },
     {
       step: 7,
-      title: 'Award of Empanelment',
-      description:
-        'Final Empanelment is awarded upon successful field verification, valid for 2 years',
+      title: t('home.step7Title'),
+      description: t('home.step7Desc'),
       icon: Award,
     },
   ];
@@ -135,20 +136,21 @@ export default function HomePage() {
               <span className="text-gov-blue font-bold text-xs sm:text-sm">NPC</span>
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm sm:text-xl font-bold truncate">APCD OEM Empanelment Portal</h1>
+              <h1 className="text-sm sm:text-xl font-bold truncate">{t('common.appName')}</h1>
               <p className="text-xs sm:text-sm text-blue-200 hidden sm:block">
-                National Productivity Council for CPCB
+                {t('common.orgName')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSwitcher />
             <Link href="/login">
               <Button
                 variant="outline"
                 size="sm"
                 className="bg-transparent border-white text-white hover:bg-white hover:text-gov-blue text-xs sm:text-sm"
               >
-                Login
+                {t('home.login')}
               </Button>
             </Link>
             <Link href="/register">
@@ -156,7 +158,7 @@ export default function HomePage() {
                 size="sm"
                 className="bg-white text-gov-blue hover:bg-blue-50 text-xs sm:text-sm"
               >
-                Register
+                {t('home.register')}
               </Button>
             </Link>
           </div>
@@ -168,11 +170,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-              Air Pollution Control Device Manufacturers Empanelment
+              {t('home.heroTitle')}
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8">
-              Get your company empaneled as an approved manufacturer of Air Pollution Control
-              Devices under the Central Pollution Control Board (CPCB) guidelines.
+              {t('home.heroSubtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link href="/register">
@@ -180,7 +181,7 @@ export default function HomePage() {
                   size="lg"
                   className="bg-white text-gov-blue hover:bg-blue-50 w-full sm:w-auto"
                 >
-                  Start Application
+                  {t('home.startApplication')}
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -190,7 +191,7 @@ export default function HomePage() {
                   className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gov-blue w-full sm:w-auto"
                 >
                   <CheckCircle2 className="mr-2 h-5 w-5" />
-                  Check Eligibility
+                  {t('home.checkEligibility')}
                 </Button>
               </Link>
               <Link href="#process">
@@ -198,7 +199,7 @@ export default function HomePage() {
                   size="lg"
                   className="bg-transparent border-2 border-white/60 text-white hover:bg-white hover:text-gov-blue w-full sm:w-auto"
                 >
-                  View Process
+                  {t('home.viewProcess')}
                 </Button>
               </Link>
             </div>
@@ -217,9 +218,9 @@ export default function HomePage() {
                     <CheckCircle2 className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Online Application</h3>
+                    <h3 className="font-semibold mb-1">{t('home.onlineApplication')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Complete paperless process with online document submission
+                      {t('home.onlineApplicationDesc')}
                     </p>
                   </div>
                 </div>
@@ -232,10 +233,8 @@ export default function HomePage() {
                     <Clock className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Track Progress</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Real-time status updates and notifications at every stage
-                    </p>
+                    <h3 className="font-semibold mb-1">{t('home.trackProgress')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('home.trackProgressDesc')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -247,9 +246,9 @@ export default function HomePage() {
                     <Shield className="h-6 w-6 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Secure & Transparent</h3>
+                    <h3 className="font-semibold mb-1">{t('home.secureTransparent')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Government-grade security with complete audit trail
+                      {t('home.secureTransparentDesc')}
                     </p>
                   </div>
                 </div>
@@ -263,10 +262,9 @@ export default function HomePage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">APCD Categories for Empanelment</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">{t('home.apcdCategories')}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Manufacturers can apply for empanelment in the following Air Pollution Control Device
-              categories
+              {t('home.apcdCategoriesDesc')}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
@@ -284,9 +282,9 @@ export default function HomePage() {
       <section id="process" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Empanelment Process</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">{t('home.empanelmentProcess')}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Follow these steps to get your company empaneled as an approved APCD manufacturer
+              {t('home.empanelmentProcessDesc')}
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -317,15 +315,15 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4">Eligibility Criteria</h2>
-              <p className="text-muted-foreground">
-                Ensure you meet the following criteria before starting your application
-              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+                {t('home.eligibilityCriteria')}
+              </h2>
+              <p className="text-muted-foreground">{t('home.eligibilityDesc')}</p>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Company Documents</CardTitle>
+                  <CardTitle className="text-lg">{t('home.companyDocuments')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
@@ -352,7 +350,7 @@ export default function HomePage() {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Technical Documents</CardTitle>
+                  <CardTitle className="text-lg">{t('home.technicalDocuments')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
@@ -387,7 +385,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">{t('home.faq')}</h2>
             </div>
             <Accordion type="single" collapsible className="w-full">
               {faqs.map((faq, index) => (
@@ -411,10 +409,9 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-10 sm:py-16 bg-gov-blue text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ready to Get Started?</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">{t('home.readyToStart')}</h2>
           <p className="text-blue-100 mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Register now and begin your APCD OEM empanelment application. Our team is here to guide
-            you through the process.
+            {t('home.readyToStartDesc')}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
             <Link href="/register">
@@ -422,7 +419,7 @@ export default function HomePage() {
                 size="lg"
                 className="bg-white text-gov-blue hover:bg-blue-50 w-full sm:w-auto"
               >
-                Register Now
+                {t('home.registerNow')}
                 <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -431,7 +428,7 @@ export default function HomePage() {
                 size="lg"
                 className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gov-blue w-full sm:w-auto"
               >
-                Check Eligibility First
+                {t('home.checkEligibilityFirst')}
               </Button>
             </Link>
             <Link href="/login">
@@ -439,7 +436,7 @@ export default function HomePage() {
                 size="lg"
                 className="bg-transparent border-2 border-white/60 text-white hover:bg-white hover:text-gov-blue w-full sm:w-auto"
               >
-                Already Registered? Login
+                {t('home.alreadyRegistered')}
               </Button>
             </Link>
           </div>
@@ -451,7 +448,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
-              <h3 className="font-semibold mb-4">About</h3>
+              <h3 className="font-semibold mb-4">{t('home.about')}</h3>
               <p className="text-sm text-gray-400">
                 The APCD OEM Empanelment Portal is an initiative by the National Productivity
                 Council for the Central Pollution Control Board to streamline the empanelment of Air
@@ -459,26 +456,26 @@ export default function HomePage() {
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
+              <h3 className="font-semibold mb-4">{t('home.quickLinks')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
                   <Link href="/register" className="hover:text-white">
-                    Register as OEM
+                    {t('home.step1Title')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/login" className="hover:text-white">
-                    Login
+                    {t('home.login')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/check-eligibility" className="hover:text-white">
-                    Check Eligibility
+                    {t('home.checkEligibility')}
                   </Link>
                 </li>
                 <li>
                   <Link href="#process" className="hover:text-white">
-                    Empanelment Process
+                    {t('home.empanelmentProcess')}
                   </Link>
                 </li>
                 <li>
@@ -494,7 +491,7 @@ export default function HomePage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Contact</h3>
+              <h3 className="font-semibold mb-4">{t('home.contact')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>National Productivity Council</li>
                 <li>Utpadakta Bhawan, 5-6 Institutional Area</li>
@@ -505,9 +502,9 @@ export default function HomePage() {
           </div>
           <div className="border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
             <p>
-              &copy; {new Date().getFullYear()} National Productivity Council. All rights reserved.
+              &copy; {new Date().getFullYear()} {t('common.copyright')}
             </p>
-            <p className="mt-1">For CPCB - Central Pollution Control Board</p>
+            <p className="mt-1">{t('common.copyrightSub')}</p>
           </div>
         </div>
       </footer>

@@ -1,17 +1,28 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { FileText, CreditCard, Award, AlertCircle, Plus, ArrowRight, Building2, UserCircle } from 'lucide-react';
+import {
+  FileText,
+  CreditCard,
+  Award,
+  AlertCircle,
+  Plus,
+  ArrowRight,
+  Building2,
+  UserCircle,
+} from 'lucide-react';
 import Link from 'next/link';
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatDate, formatCurrency, getStatusColor, getStatusLabel } from '@/lib/utils';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function OEMDashboard() {
+  const t = useLanguageStore((s) => s.t);
   const { data: response, isLoading } = useQuery({
     queryKey: ['oem-dashboard'],
     queryFn: () => apiGet<{ success: boolean; data: any }>('/dashboard/oem'),
@@ -52,21 +63,21 @@ export default function OEMDashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome to APCD OEM Empanelment Portal</p>
+            <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
           </div>
           {hasProfile ? (
             <Button asChild>
               <Link href="/applications/new">
                 <Plus className="mr-2 h-4 w-4" />
-                New Application
+                {t('dashboard.newApplication')}
               </Link>
             </Button>
           ) : (
             <Button asChild>
               <Link href="/profile">
                 <UserCircle className="mr-2 h-4 w-4" />
-                Complete Profile
+                {t('dashboard.completeProfile')}
               </Link>
             </Button>
           )}
@@ -81,16 +92,15 @@ export default function OEMDashboard() {
                   <Building2 className="h-6 w-6 text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-red-800">Complete Your Company Profile</h3>
-                  <p className="text-red-700 mt-1">
-                    You must complete your company profile before you can start an empanelment application.
-                    This includes company details, GST registration, PAN, and address information.
-                  </p>
+                  <h3 className="text-lg font-semibold text-red-800">
+                    {t('dashboard.completeProfileTitle')}
+                  </h3>
+                  <p className="text-red-700 mt-1">{t('dashboard.completeProfileDesc')}</p>
                   <div className="mt-4 flex gap-3">
                     <Button asChild>
                       <Link href="/profile">
                         <Building2 className="mr-2 h-4 w-4" />
-                        Complete Profile Now
+                        {t('dashboard.completeProfileNow')}
                       </Link>
                     </Button>
                   </div>
@@ -115,7 +125,7 @@ export default function OEMDashboard() {
               </p>
             </div>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/profile">Edit Profile</Link>
+              <Link href="/profile">{t('dashboard.editProfile')}</Link>
             </Button>
           </div>
         )}
@@ -125,12 +135,13 @@ export default function OEMDashboard() {
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5" />
             <div>
-              <h3 className="font-medium text-orange-800">Action Required</h3>
+              <h3 className="font-medium text-orange-800">{t('dashboard.actionRequired')}</h3>
               <p className="text-sm text-orange-700">
-                You have {dashboard.pendingQueries} pending {dashboard.pendingQueries === 1 ? 'query' : 'queries'} that require your response.
+                You have {dashboard.pendingQueries} pending{' '}
+                {dashboard.pendingQueries === 1 ? 'query' : 'queries'} that require your response.
               </p>
               <Button variant="link" className="p-0 h-auto text-orange-700" asChild>
-                <Link href="/queries">View Queries</Link>
+                <Link href="/queries">{t('dashboard.viewQueries')}</Link>
               </Button>
             </div>
           </div>
@@ -140,51 +151,61 @@ export default function OEMDashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.totalApplications')}
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.applications?.total || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.applications?.statusCounts?.DRAFT || 0} in draft
+                {t('dashboard.inDraft', {
+                  count: dashboard?.applications?.statusCounts?.DRAFT || 0,
+                })}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Certificates</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.activeCertificates')}
+              </CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.certificates?.active || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.certificates?.expiring?.length || 0} expiring soon
+                {t('dashboard.expiringSoon', {
+                  count: dashboard?.certificates?.expiring?.length || 0,
+                })}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.totalPayments')}</CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {formatCurrency(dashboard?.totalPayments || 0)}
               </div>
-              <p className="text-xs text-muted-foreground">All verified payments</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.allVerified')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Queries</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('dashboard.pendingQueriesLabel')}
+              </CardTitle>
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.pendingQueries || 0}</div>
-              <p className="text-xs text-muted-foreground">Requires response</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.requiresResponse')}</p>
             </CardContent>
           </Card>
         </div>
@@ -193,12 +214,12 @@ export default function OEMDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Applications</CardTitle>
-              <CardDescription>Your latest application submissions</CardDescription>
+              <CardTitle>{t('dashboard.recentApplications')}</CardTitle>
+              <CardDescription>{t('dashboard.recentApplicationsDesc')}</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/applications">
-                View All
+                {t('common.viewAll')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -207,16 +228,16 @@ export default function OEMDashboard() {
             {dashboard?.applications?.recent?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>No applications yet</p>
+                <p>{t('dashboard.noApplications')}</p>
                 {hasProfile ? (
                   <Button className="mt-4" asChild>
-                    <Link href="/applications/new">Create Your First Application</Link>
+                    <Link href="/applications/new">{t('dashboard.createFirst')}</Link>
                   </Button>
                 ) : (
                   <div className="mt-4">
-                    <p className="text-sm mb-2">Complete your profile first to start an application</p>
+                    <p className="text-sm mb-2">{t('dashboard.completeProfileFirst')}</p>
                     <Button asChild>
-                      <Link href="/profile">Complete Profile</Link>
+                      <Link href="/profile">{t('dashboard.completeProfile')}</Link>
                     </Button>
                   </div>
                 )}
@@ -239,7 +260,7 @@ export default function OEMDashboard() {
                         {getStatusLabel(app.status)}
                       </Badge>
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/applications/${app.id}`}>View</Link>
+                        <Link href={`/applications/${app.id}`}>{t('common.view')}</Link>
                       </Button>
                     </div>
                   </div>
@@ -253,7 +274,9 @@ export default function OEMDashboard() {
         {dashboard?.certificates?.expiring?.length > 0 && (
           <Card className="border-orange-200 bg-orange-50">
             <CardHeader>
-              <CardTitle className="text-orange-800">Certificates Expiring Soon</CardTitle>
+              <CardTitle className="text-orange-800">
+                {t('dashboard.certificatesExpiring')}
+              </CardTitle>
               <CardDescription className="text-orange-700">
                 The following certificates will expire within 60 days
               </CardDescription>
@@ -272,7 +295,7 @@ export default function OEMDashboard() {
                       </p>
                     </div>
                     <Button size="sm" asChild>
-                      <Link href={`/certificates/${cert.id}/renew`}>Renew</Link>
+                      <Link href={`/certificates/${cert.id}/renew`}>{t('dashboard.renew')}</Link>
                     </Button>
                   </div>
                 ))}

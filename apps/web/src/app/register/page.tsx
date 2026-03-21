@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,6 +23,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { apiPost, getApiErrorMessage } from '@/lib/api';
 import { useAuthStore } from '@/store/auth-store';
+import { useLanguageStore } from '@/store/language-store';
 
 const registerSchema = z
   .object({
@@ -49,6 +51,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const t = useLanguageStore((s) => s.t);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -124,11 +127,12 @@ export default function RegisterPage() {
             <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center">
               <span className="text-gov-blue font-bold">NPC</span>
             </div>
-            <div>
-              <h1 className="text-xl font-bold">APCD OEM Empanelment Portal</h1>
-              <p className="text-sm text-blue-200">National Productivity Council for CPCB</p>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold">{t('common.appName')}</h1>
+              <p className="text-sm text-blue-200">{t('common.orgName')}</p>
             </div>
           </Link>
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -141,29 +145,34 @@ export default function RegisterPage() {
               className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to home
+              {t('register.backToHome')}
             </Link>
-            <CardTitle className="text-2xl">OEM Registration</CardTitle>
-            <CardDescription>
-              Register as an Air Pollution Control Device manufacturer to start your empanelment
-              application
-            </CardDescription>
+            <CardTitle className="text-2xl">{t('register.title')}</CardTitle>
+            <CardDescription>{t('register.subtitle')}</CardDescription>
           </CardHeader>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="Enter first name" {...register('firstName')} />
+                  <Label htmlFor="firstName">{t('register.firstName')}</Label>
+                  <Input
+                    id="firstName"
+                    placeholder={t('register.enterFirstName')}
+                    {...register('firstName')}
+                  />
                   {errors.firstName && (
                     <p className="text-sm text-red-500">{errors.firstName.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Enter last name" {...register('lastName')} />
+                  <Label htmlFor="lastName">{t('register.lastName')}</Label>
+                  <Input
+                    id="lastName"
+                    placeholder={t('register.enterLastName')}
+                    {...register('lastName')}
+                  />
                   {errors.lastName && (
                     <p className="text-sm text-red-500">{errors.lastName.message}</p>
                   )}
@@ -171,34 +180,34 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">{t('auth.emailAddress')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('auth.enterEmail')}
                   {...register('email')}
                 />
                 {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Mobile Number</Label>
+                <Label htmlFor="phone">{t('register.mobileNumber')}</Label>
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="10-digit mobile number"
+                  placeholder={t('register.mobilePlaceholder')}
                   {...register('phone')}
                 />
                 {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Create a strong password"
+                    placeholder={t('register.createPassword')}
                     {...register('password')}
                   />
                   <button
@@ -213,16 +222,16 @@ export default function RegisterPage() {
                   <p className="text-sm text-red-500">{errors.password.message}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Must contain: 8+ chars, uppercase, lowercase, number, special char (!@#$%^&*)
+                  {t('register.passwordRequirements')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">{t('register.confirmPassword')}</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
-                  placeholder="Confirm your password"
+                  placeholder={t('register.confirmPlaceholder')}
                   {...register('confirmPassword')}
                 />
                 {errors.confirmPassword && (
@@ -236,22 +245,22 @@ export default function RegisterPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account...
+                    {t('register.creatingAccount')}
                   </>
                 ) : (
-                  'Create Account & Start Application'
+                  t('register.createAccount')
                 )}
               </Button>
 
               <p className="text-sm text-center text-muted-foreground">
-                Already have an account?{' '}
+                {t('auth.alreadyHaveAccount')}{' '}
                 <Link href="/login" className="text-primary hover:underline">
-                  Login here
+                  {t('auth.loginHere')}
                 </Link>
               </p>
 
               <p className="text-xs text-center text-muted-foreground">
-                By registering, you agree to our Terms of Service and Privacy Policy
+                {t('register.termsAgreement')}
               </p>
             </CardFooter>
           </form>
@@ -262,7 +271,7 @@ export default function RegisterPage() {
       <footer className="bg-gray-800 text-white py-4">
         <div className="container mx-auto px-4 text-center text-sm">
           <p>
-            &copy; {new Date().getFullYear()} National Productivity Council. All rights reserved.
+            &copy; {new Date().getFullYear()} {t('common.copyright')}
           </p>
         </div>
       </footer>

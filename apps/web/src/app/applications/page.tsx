@@ -6,14 +6,16 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { apiGet } from '@/lib/api';
 import { formatDate, getStatusColor, getStatusLabel } from '@/lib/utils';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function ApplicationsPage() {
+  const t = useLanguageStore((s) => s.t);
   const [search, setSearch] = useState('');
 
   const { data: applications, isLoading } = useQuery({
@@ -24,7 +26,7 @@ export default function ApplicationsPage() {
   const filteredApplications = applications?.filter(
     (app) =>
       app.applicationNumber?.toLowerCase().includes(search.toLowerCase()) ||
-      getStatusLabel(app.status).toLowerCase().includes(search.toLowerCase())
+      getStatusLabel(app.status).toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -33,13 +35,13 @@ export default function ApplicationsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">My Applications</h1>
+            <h1 className="text-2xl font-bold">{t('nav.applications')}</h1>
             <p className="text-muted-foreground">Manage your empanelment applications</p>
           </div>
           <Button asChild>
             <Link href="/applications/new">
               <Plus className="mr-2 h-4 w-4" />
-              New Application
+              {t('dashboard.newApplication')}
             </Link>
           </Button>
         </div>
@@ -59,7 +61,7 @@ export default function ApplicationsPage() {
               </div>
               <Button variant="outline">
                 <Filter className="mr-2 h-4 w-4" />
-                Filter
+                {t('common.filter')}
               </Button>
             </div>
           </CardContent>
@@ -80,9 +82,9 @@ export default function ApplicationsPage() {
               </div>
             ) : filteredApplications?.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">No applications found</p>
+                <p className="text-muted-foreground mb-4">{t('dashboard.noApplications')}</p>
                 <Button asChild>
-                  <Link href="/applications/new">Create Your First Application</Link>
+                  <Link href="/applications/new">{t('dashboard.createFirst')}</Link>
                 </Button>
               </div>
             ) : (
@@ -118,7 +120,7 @@ export default function ApplicationsPage() {
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/applications/${app.id}`}>View</Link>
+                        <Link href={`/applications/${app.id}`}>{t('common.view')}</Link>
                       </Button>
                     </div>
                   </div>

@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/utils';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function QueriesPage() {
+  const t = useLanguageStore((s) => s.t);
   // Fetch OEM's pending queries
   const { data: response, isLoading } = useQuery({
     queryKey: ['my-pending-queries'],
@@ -33,7 +35,7 @@ export default function QueriesPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">My Queries</h1>
+          <h1 className="text-2xl font-bold">{t('nav.queries')}</h1>
           <p className="text-muted-foreground">
             Queries raised on your applications that need response
           </p>
@@ -80,7 +82,9 @@ export default function QueriesPage() {
                       </Badge>
                       <Button size="sm" asChild>
                         <Link href={`/queries/${q.id}`}>
-                          {q.status === 'OPEN' ? 'Respond' : 'View'}{' '}
+                          {q.status === 'OPEN'
+                            ? t('verification.respondToQuery')
+                            : t('common.view')}{' '}
                           <ArrowRight className="ml-1 h-4 w-4" />
                         </Link>
                       </Button>

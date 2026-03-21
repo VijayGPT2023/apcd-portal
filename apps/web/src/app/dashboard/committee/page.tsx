@@ -9,8 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiGet } from '@/lib/api';
+import { useLanguageStore } from '@/store/language-store';
 
 export default function CommitteeDashboard() {
+  const t = useLanguageStore((s) => s.t);
   const { data: dashboard, isLoading } = useQuery({
     queryKey: ['committee-dashboard'],
     queryFn: () => apiGet<any>('/dashboard/committee'),
@@ -31,37 +33,45 @@ export default function CommitteeDashboard() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold">Committee Dashboard</h1>
-          <p className="text-muted-foreground">Review and evaluate OEM applications</p>
+          <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
+          <p className="text-muted-foreground">
+            {t('dashboard.reviewAndEvaluate', 'Review and evaluate OEM applications')}
+          </p>
         </div>
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('nav.pendingReview')}</CardTitle>
               <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.pendingReview || 0}</div>
-              <p className="text-xs text-muted-foreground">Applications awaiting evaluation</p>
+              <p className="text-xs text-muted-foreground">
+                {t('dashboard.applicationsAwaitingEvaluation', 'Applications awaiting evaluation')}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">My Evaluations</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('nav.myEvaluations')}</CardTitle>
               <Star className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.myEvaluations || 0}</div>
-              <p className="text-xs text-muted-foreground">Total evaluations submitted</p>
+              <p className="text-xs text-muted-foreground">
+                {t('dashboard.totalEvaluationsSubmitted', 'Total evaluations submitted')}
+              </p>
             </CardContent>
           </Card>
 
           <Card className="bg-blue-50 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-800">Needs Your Review</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-800">
+                {t('dashboard.needsYourReview', 'Needs Your Review')}
+              </CardTitle>
               <FileText className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
@@ -69,7 +79,9 @@ export default function CommitteeDashboard() {
                 {dashboard?.applicationsForReview?.filter((a: any) => !a.hasMyEvaluation).length ||
                   0}
               </div>
-              <p className="text-xs text-blue-700">Not yet evaluated by you</p>
+              <p className="text-xs text-blue-700">
+                {t('dashboard.notYetEvaluated', 'Not yet evaluated by you')}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -78,12 +90,19 @@ export default function CommitteeDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Applications for Review</CardTitle>
-              <CardDescription>OEM applications pending committee evaluation</CardDescription>
+              <CardTitle>
+                {t('dashboard.applicationsForReview', 'Applications for Review')}
+              </CardTitle>
+              <CardDescription>
+                {t(
+                  'dashboard.pendingCommitteeEvaluation',
+                  'OEM applications pending committee evaluation',
+                )}
+              </CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/committee/pending">
-                View All
+                {t('common.viewAll')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -92,7 +111,9 @@ export default function CommitteeDashboard() {
             {dashboard?.applicationsForReview?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <ClipboardCheck className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>No applications pending review</p>
+                <p>
+                  {t('dashboard.noApplicationsPendingReview', 'No applications pending review')}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -107,13 +128,15 @@ export default function CommitteeDashboard() {
                     </div>
                     <div className="flex items-center gap-4">
                       {app.hasMyEvaluation ? (
-                        <Badge variant="success">Evaluated</Badge>
+                        <Badge variant="success">{t('dashboard.evaluated', 'Evaluated')}</Badge>
                       ) : (
-                        <Badge variant="warning">Pending</Badge>
+                        <Badge variant="warning">{t('verification.pendingApplications')}</Badge>
                       )}
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/committee/evaluate/${app.id}`}>
-                          {app.hasMyEvaluation ? 'View' : 'Evaluate'}
+                          {app.hasMyEvaluation
+                            ? t('common.view')
+                            : t('dashboard.evaluate', 'Evaluate')}
                         </Link>
                       </Button>
                     </div>
@@ -127,8 +150,10 @@ export default function CommitteeDashboard() {
         {/* Evaluation Criteria Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Evaluation Criteria</CardTitle>
-            <CardDescription>8-point evaluation system (Maximum 100 marks)</CardDescription>
+            <CardTitle>{t('dashboard.evaluationCriteria', 'Evaluation Criteria')}</CardTitle>
+            <CardDescription>
+              {t('dashboard.evaluationSystem', '8-point evaluation system (Maximum 100 marks)')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
@@ -149,7 +174,7 @@ export default function CommitteeDashboard() {
               ))}
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              Minimum passing score: 60 marks out of 100
+              {t('dashboard.minimumPassingScore', 'Minimum passing score: 60 marks out of 100')}
             </p>
           </CardContent>
         </Card>

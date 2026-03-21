@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore, useUser } from '@/store/auth-store';
+import { useLanguageStore } from '@/store/language-store';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -23,6 +24,7 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const user = useUser();
   const logout = useAuthStore((state) => state.logout);
+  const t = useLanguageStore((s) => s.t);
 
   const handleLogout = () => {
     logout();
@@ -69,10 +71,10 @@ export function Header({ onMenuClick }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-72">
-              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('nav.notifications')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <div className="py-6 text-center text-sm text-muted-foreground">
-                No new notifications
+                {t('nav.noNewNotifications')}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -93,18 +95,18 @@ export function Header({ onMenuClick }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('nav.myAccount')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/profile" className="flex items-center">
                   <User className="mr-2 h-4 w-4" />
-                  Profile
+                  {t('nav.profile')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
-                Logout
+                {t('nav.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
