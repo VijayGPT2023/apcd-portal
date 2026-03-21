@@ -36,9 +36,7 @@ export default function AdminDashboard() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
-            <p className="text-muted-foreground">
-              {t('dashboard.systemOverview', 'System overview and management')}
-            </p>
+            <p className="text-muted-foreground">{t('dashboard.systemOverview')}</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
@@ -50,7 +48,7 @@ export default function AdminDashboard() {
             <Button asChild>
               <Link href="/admin/users">
                 <Users className="mr-2 h-4 w-4" />
-                {t('dashboard.manageUsers', 'Manage Users')}
+                {t('dashboard.manageUsers')}
               </Link>
             </Button>
           </div>
@@ -60,16 +58,13 @@ export default function AdminDashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t('dashboard.totalUsers', 'Total Users')}
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.totalUsers')}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.userStats?.total || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.userStats?.activeToday || 0}{' '}
-                {t('dashboard.activeToday', 'active today')}
+                {dashboard?.userStats?.activeToday || 0} {t('dashboard.activeToday')}
               </p>
             </CardContent>
           </Card>
@@ -84,16 +79,14 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.totalApplications || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.todayStats?.newApplications || 0} {t('dashboard.today', 'today')}
+                {dashboard?.todayStats?.newApplications || 0} {t('dashboard.today')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t('dashboard.totalRevenue', 'Total Revenue')}
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.totalRevenue')}</CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -109,7 +102,7 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {t('dashboard.certificatesIssued', 'Certificates Issued')}
+                {t('dashboard.certificatesIssued')}
               </CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -118,8 +111,7 @@ export default function AdminDashboard() {
                 {dashboard?.certificateStats?.byStatus?.ACTIVE || 0}
               </div>
               <p className="text-xs text-muted-foreground">
-                {dashboard?.certificateStats?.issuedThisMonth || 0}{' '}
-                {t('dashboard.thisMonth', 'this month')}
+                {dashboard?.certificateStats?.issuedThisMonth || 0} {t('dashboard.thisMonth')}
               </p>
             </CardContent>
           </Card>
@@ -128,10 +120,8 @@ export default function AdminDashboard() {
         {/* Users by Role */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.usersByRole', 'Users by Role')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.distributionOfUsers', 'Distribution of registered users')}
-            </CardDescription>
+            <CardTitle>{t('dashboard.usersByRole')}</CardTitle>
+            <CardDescription>{t('dashboard.distributionOfUsers')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-5">
@@ -150,10 +140,8 @@ export default function AdminDashboard() {
           {/* Payment Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>{t('dashboard.paymentSummary', 'Payment Summary')}</CardTitle>
-              <CardDescription>
-                {t('dashboard.overviewOfPayments', 'Overview of all payments')}
-              </CardDescription>
+              <CardTitle>{t('dashboard.paymentSummary')}</CardTitle>
+              <CardDescription>{t('dashboard.overviewOfPayments')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
@@ -184,10 +172,8 @@ export default function AdminDashboard() {
           {/* Certificate Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>{t('dashboard.certificateStatus', 'Certificate Status')}</CardTitle>
-              <CardDescription>
-                {t('dashboard.overviewOfCertificates', 'Overview of all certificates')}
-              </CardDescription>
+              <CardTitle>{t('dashboard.certificateStatus')}</CardTitle>
+              <CardDescription>{t('dashboard.overviewOfCertificates')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {Object.entries(dashboard?.certificateStats?.byStatus || {}).map(
@@ -208,17 +194,15 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.quickActions', 'Quick Actions')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.commonAdminTasks', 'Common administrative tasks')}
-            </CardDescription>
+            <CardTitle>{t('dashboard.quickActions')}</CardTitle>
+            <CardDescription>{t('dashboard.commonAdminTasks')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-4">
               <Button variant="outline" className="h-auto py-4 flex flex-col" asChild>
                 <Link href="/admin/users/new">
                   <Users className="h-6 w-6 mb-2" />
-                  <span>{t('dashboard.addUser', 'Add User')}</span>
+                  <span>{t('dashboard.addUser')}</span>
                 </Link>
               </Button>
               <Button variant="outline" className="h-auto py-4 flex flex-col" asChild>
@@ -236,7 +220,7 @@ export default function AdminDashboard() {
               <Button variant="outline" className="h-auto py-4 flex flex-col" asChild>
                 <Link href="/admin/reports">
                   <BarChart3 className="h-6 w-6 mb-2" />
-                  <span>{t('dashboard.generateReport', 'Generate Report')}</span>
+                  <span>{t('dashboard.generateReport')}</span>
                 </Link>
               </Button>
             </div>

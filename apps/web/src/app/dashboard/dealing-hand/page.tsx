@@ -34,9 +34,7 @@ export default function DealingHandDashboard() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
-          <p className="text-muted-foreground">
-            {t('dashboard.manageLabBills', 'Manage lab bills and payment support')}
-          </p>
+          <p className="text-muted-foreground">{t('dashboard.manageLabBills')}</p>
         </div>
 
         {/* Stats */}
@@ -44,14 +42,14 @@ export default function DealingHandDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {t('dashboard.pendingLabBills', 'Pending Lab Bills')}
+                {t('dashboard.pendingLabBills')}
               </CardTitle>
               <Receipt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.pendingLabBills || 0}</div>
               <Link href="/dealing-hand/lab-bills" className="text-xs text-primary hover:underline">
-                {t('dashboard.viewPendingBills', 'View pending bills')}
+                {t('dashboard.viewPendingBills')}
               </Link>
             </CardContent>
           </Card>
@@ -59,29 +57,25 @@ export default function DealingHandDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {t('dashboard.uploadedLabBills', 'Uploaded Lab Bills')}
+                {t('dashboard.uploadedLabBills')}
               </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.uploadedLabBills || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {t('dashboard.totalBillsUploaded', 'Total bills uploaded')}
-              </p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.totalBillsUploaded')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t('dashboard.paymentQueries', 'Payment Queries')}
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.paymentQueries')}</CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.paymentQueries || 0}</div>
               <Link href="/dealing-hand/payments" className="text-xs text-primary hover:underline">
-                {t('dashboard.viewPaymentQueries', 'View payment queries')}
+                {t('dashboard.viewPaymentQueries')}
               </Link>
             </CardContent>
           </Card>
@@ -91,7 +85,7 @@ export default function DealingHandDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>{t('dashboard.recentLabBills', 'Recent Lab Bills')}</CardTitle>
+              <CardTitle>{t('dashboard.recentLabBills')}</CardTitle>
               <CardDescription>
                 {t(
                   'dashboard.labBillsPendingUpload',
@@ -110,7 +104,7 @@ export default function DealingHandDashboard() {
             {(dashboard?.recentApplications?.length || 0) === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Receipt className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>{t('dashboard.noPendingLabBills', 'No pending lab bills')}</p>
+                <p>{t('dashboard.noPendingLabBills')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -131,7 +125,7 @@ export default function DealingHandDashboard() {
                       </Badge>
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/dealing-hand/lab-bills?app=${app.id}`}>
-                          {t('dashboard.uploadBill', 'Upload Bill')}
+                          {t('dashboard.uploadBill')}
                         </Link>
                       </Button>
                     </div>

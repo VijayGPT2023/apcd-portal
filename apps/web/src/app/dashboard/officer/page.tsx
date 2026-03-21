@@ -35,9 +35,7 @@ export default function OfficerDashboard() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
-          <p className="text-muted-foreground">
-            {t('dashboard.applicationVerification', 'Application verification and management')}
-          </p>
+          <p className="text-muted-foreground">{t('dashboard.applicationVerification')}</p>
         </div>
 
         {/* Today's Stats */}
@@ -102,14 +100,14 @@ export default function OfficerDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {t('dashboard.pendingPayments', 'Pending Payments')}
+                {t('dashboard.pendingPayments')}
               </CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.pendingPayments || 0}</div>
               <Link href="/payments/verify" className="text-xs text-primary hover:underline">
-                {t('dashboard.verifyPayments', 'Verify payments')}
+                {t('dashboard.verifyPayments')}
               </Link>
             </CardContent>
           </Card>
@@ -122,7 +120,7 @@ export default function OfficerDashboard() {
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.pendingFieldVerifications || 0}</div>
               <Link href="/field-verification" className="text-xs text-primary hover:underline">
-                {t('dashboard.scheduleVerifications', 'Schedule verifications')}
+                {t('dashboard.scheduleVerifications')}
               </Link>
             </CardContent>
           </Card>
@@ -130,14 +128,14 @@ export default function OfficerDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {t('dashboard.committeeReview', 'Committee Review')}
+                {t('dashboard.committeeReview')}
               </CardTitle>
               <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{dashboard?.pendingCommitteeReview || 0}</div>
               <Link href="/committee" className="text-xs text-primary hover:underline">
-                {t('dashboard.viewPending', 'View pending')}
+                {t('dashboard.viewPending')}
               </Link>
             </CardContent>
           </Card>
@@ -146,10 +144,8 @@ export default function OfficerDashboard() {
         {/* Applications by Status */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.applicationsByStatus', 'Applications by Status')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.distributionOfApplications', 'Distribution of all applications')}
-            </CardDescription>
+            <CardTitle>{t('dashboard.applicationsByStatus')}</CardTitle>
+            <CardDescription>{t('dashboard.distributionOfApplications')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -171,9 +167,7 @@ export default function OfficerDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>{t('dashboard.recentApplications')}</CardTitle>
-              <CardDescription>
-                {t('dashboard.latestSubmittedApplications', 'Latest submitted applications')}
-              </CardDescription>
+              <CardDescription>{t('dashboard.latestSubmittedApplications')}</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/verification">
@@ -200,9 +194,7 @@ export default function OfficerDashboard() {
                       {getStatusLabel(app.status)}
                     </Badge>
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/verification/${app.id}`}>
-                        {t('dashboard.review', 'Review')}
-                      </Link>
+                      <Link href={`/verification/${app.id}`}>{t('dashboard.review')}</Link>
                     </Button>
                   </div>
                 </div>
