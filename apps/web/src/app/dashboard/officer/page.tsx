@@ -43,7 +43,7 @@ export default function OfficerDashboard() {
           <Card className="bg-blue-50 border-blue-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-blue-800">
-                {t('dashboard.todaysNewApplications', "Today's New Applications")}
+                {t('dashboard.todaysNewApplications')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -56,7 +56,7 @@ export default function OfficerDashboard() {
           <Card className="bg-green-50 border-green-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-green-800">
-                {t('dashboard.todaysSubmissions', "Today's Submissions")}
+                {t('dashboard.todaysSubmissions')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -69,7 +69,7 @@ export default function OfficerDashboard() {
           <Card className="bg-purple-50 border-purple-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-purple-800">
-                {t('dashboard.todaysPayments', "Today's Payments")}
+                {t('dashboard.todaysPayments')}
               </CardTitle>
             </CardHeader>
             <CardContent>
