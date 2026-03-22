@@ -5,146 +5,159 @@
 ### Backend (`apps/api/src/`)
 
 #### Core Bootstrap
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `main.ts` | Application bootstrap: Helmet, CORS, ValidationPipe, Swagger, global filters/interceptors | `bootstrap()` |
-| `app.module.ts` | Root module: imports all feature modules, configures global guards (JwtAuth, Roles, Throttler) | `AppModule` |
+
+| File            | Responsibility                                                                                 | Main Exports  |
+| --------------- | ---------------------------------------------------------------------------------------------- | ------------- |
+| `main.ts`       | Application bootstrap: Helmet, CORS, ValidationPipe, Swagger, global filters/interceptors      | `bootstrap()` |
+| `app.module.ts` | Root module: imports all feature modules, configures global guards (JwtAuth, Roles, Throttler) | `AppModule`   |
 
 #### Common Layer (`common/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `decorators/current-user.decorator.ts` | Extracts JWT payload from request context | `CurrentUser` decorator, `JwtPayload` interface |
-| `decorators/public.decorator.ts` | Marks routes as publicly accessible (bypasses JWT guard) | `Public` decorator, `IS_PUBLIC_KEY` |
-| `decorators/roles.decorator.ts` | Specifies required roles for endpoints | `Roles` decorator, `ROLES_KEY` |
-| `guards/jwt-auth.guard.ts` | Extends Passport `AuthGuard('jwt')`, checks `@Public()` metadata | `JwtAuthGuard` |
-| `guards/roles.guard.ts` | Checks user role against `@Roles()` metadata | `RolesGuard` |
-| `filters/http-exception.filter.ts` | Global exception filter, standardises error response format | `HttpExceptionFilter` |
-| `interceptors/transform.interceptor.ts` | Wraps all responses in `{ success, data, timestamp }` | `TransformInterceptor` |
-| `interceptors/audit-log.interceptor.ts` | Logs all requests to audit trail | `AuditLogInterceptor` |
-| `dto/pagination.dto.ts` | Pagination query parameters | `PaginationDto`, `PaginatedResult<T>` |
+| File                                      | Responsibility                                                                    | Main Exports                                    |
+| ----------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `decorators/current-user.decorator.ts`    | Extracts JWT payload from request context                                         | `CurrentUser` decorator, `JwtPayload` interface |
+| `decorators/public.decorator.ts`          | Marks routes as publicly accessible (bypasses JWT guard)                          | `Public` decorator, `IS_PUBLIC_KEY`             |
+| `decorators/roles.decorator.ts`           | Specifies required roles for endpoints                                            | `Roles` decorator, `ROLES_KEY`                  |
+| `guards/jwt-auth.guard.ts`                | Extends Passport `AuthGuard('jwt')`, checks `@Public()` metadata                  | `JwtAuthGuard`                                  |
+| `guards/roles.guard.ts`                   | Checks user role against `@Roles()` metadata                                      | `RolesGuard`                                    |
+| `filters/http-exception.filter.ts`        | Global exception filter, standardises error response format                       | `HttpExceptionFilter`                           |
+| `interceptors/transform.interceptor.ts`   | Wraps all responses in `{ success, data, timestamp }`                             | `TransformInterceptor`                          |
+| `interceptors/audit-log.interceptor.ts`   | Logs all requests to audit trail                                                  | `AuditLogInterceptor`                           |
+| `interceptors/performance.interceptor.ts` | Logs request duration in development, warns on requests >2000ms with user context | `PerformanceInterceptor`                        |
+| `dto/pagination.dto.ts`                   | Pagination query parameters                                                       | `PaginationDto`, `PaginatedResult<T>`           |
 
 #### Infrastructure (`infrastructure/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
+| File                         | Responsibility                                      | Main Exports    |
+| ---------------------------- | --------------------------------------------------- | --------------- |
 | `database/prisma.service.ts` | Global Prisma client with `onModuleInit` connection | `PrismaService` |
-| `database/prisma.module.ts` | Global module providing `PrismaService` | `PrismaModule` |
-| `storage/minio.service.ts` | MinIO S3-compatible client for file operations | `MinioService` |
-| `storage/minio.module.ts` | Configures MinIO connection from env vars | `MinioModule` |
-| `storage/storage.module.ts` | Aggregates storage providers | `StorageModule` |
+| `database/prisma.module.ts`  | Global module providing `PrismaService`             | `PrismaModule`  |
+| `storage/minio.service.ts`   | MinIO S3-compatible client for file operations      | `MinioService`  |
+| `storage/minio.module.ts`    | Configures MinIO connection from env vars           | `MinioModule`   |
+| `storage/storage.module.ts`  | Aggregates storage providers                        | `StorageModule` |
 
 #### Auth Module (`modules/auth/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `auth.service.ts` | Authentication business logic | `AuthService` |
-| `auth.controller.ts` | REST endpoints for auth flows | `AuthController` |
-| `auth.module.ts` | Module wiring (JWT, Passport, Prisma) | `AuthModule` |
-| `strategies/jwt.strategy.ts` | Passport JWT extraction from Bearer header | `JwtStrategy` |
-| `strategies/jwt-refresh.strategy.ts` | Passport strategy for refresh tokens | `JwtRefreshStrategy` |
-| `dto/login.dto.ts` | Login request validation | `LoginDto` |
-| `dto/register.dto.ts` | Registration request validation (password strength regex) | `RegisterDto` |
-| `dto/token-response.dto.ts` | Token response shape for Swagger | `TokenResponseDto` |
+| File                                 | Responsibility                                            | Main Exports         |
+| ------------------------------------ | --------------------------------------------------------- | -------------------- |
+| `auth.service.ts`                    | Authentication business logic                             | `AuthService`        |
+| `auth.controller.ts`                 | REST endpoints for auth flows                             | `AuthController`     |
+| `auth.module.ts`                     | Module wiring (JWT, Passport, Prisma)                     | `AuthModule`         |
+| `strategies/jwt.strategy.ts`         | Passport JWT extraction from Bearer header                | `JwtStrategy`        |
+| `strategies/jwt-refresh.strategy.ts` | Passport strategy for refresh tokens                      | `JwtRefreshStrategy` |
+| `dto/login.dto.ts`                   | Login request validation                                  | `LoginDto`           |
+| `dto/register.dto.ts`                | Registration request validation (password strength regex) | `RegisterDto`        |
+| `dto/token-response.dto.ts`          | Token response shape for Swagger                          | `TokenResponseDto`   |
+| `dto/forgot-password.dto.ts`         | Forgot password request validation                        | `ForgotPasswordDto`  |
+| `dto/reset-password.dto.ts`          | Password reset with token validation                      | `ResetPasswordDto`   |
+| `dto/change-password.dto.ts`         | Authenticated password change validation                  | `ChangePasswordDto`  |
+| `dto/change-email.dto.ts`            | Email change request validation                           | `ChangeEmailDto`     |
 
 #### Applications Module (`modules/applications/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `applications.service.ts` | Full application lifecycle management | `ApplicationsService` |
-| `applications.controller.ts` | REST endpoints for application CRUD + status transitions | `ApplicationsController` |
-| `applications.module.ts` | Module wiring | `ApplicationsModule` |
-| `application-validator.service.ts` | 11-rule validation before submission | `ApplicationValidatorService` |
-| `fee-calculator.service.ts` | Fee calculation with GST + MSE discount | `FeeCalculatorService` |
-| `dto/create-application.dto.ts` | Multi-step form DTOs | `CreateApplicationDto`, `UpdateApplicationDto`, `ContactPersonDto`, `ApcdSelectionDto` |
-| `dto/application-filter.dto.ts` | List filtering/pagination | `ApplicationFilterDto` |
+| File                               | Responsibility                                           | Main Exports                                                                           |
+| ---------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `applications.service.ts`          | Full application lifecycle management                    | `ApplicationsService`                                                                  |
+| `applications.controller.ts`       | REST endpoints for application CRUD + status transitions | `ApplicationsController`                                                               |
+| `applications.module.ts`           | Module wiring                                            | `ApplicationsModule`                                                                   |
+| `application-validator.service.ts` | 11-rule validation before submission                     | `ApplicationValidatorService`                                                          |
+| `fee-calculator.service.ts`        | Fee calculation with GST + MSE discount                  | `FeeCalculatorService`                                                                 |
+| `dto/create-application.dto.ts`    | Multi-step form DTOs                                     | `CreateApplicationDto`, `UpdateApplicationDto`, `ContactPersonDto`, `ApcdSelectionDto` |
+| `dto/application-filter.dto.ts`    | List filtering/pagination                                | `ApplicationFilterDto`                                                                 |
 
 #### Attachments Module (`modules/attachments/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `attachments.service.ts` | File upload/download/verify with MinIO | `AttachmentsService` |
-| `attachments.controller.ts` | Multipart upload + download endpoints | `AttachmentsController` |
+| File                           | Responsibility                             | Main Exports             |
+| ------------------------------ | ------------------------------------------ | ------------------------ |
+| `attachments.service.ts`       | File upload/download/verify with MinIO     | `AttachmentsService`     |
+| `attachments.controller.ts`    | Multipart upload + download endpoints      | `AttachmentsController`  |
 | `geo-tag-validator.service.ts` | EXIF GPS extraction and India-bounds check | `GeoTagValidatorService` |
-| `attachments.module.ts` | Module wiring (imports StorageModule) | `AttachmentsModule` |
+| `attachments.module.ts`        | Module wiring (imports StorageModule)      | `AttachmentsModule`      |
 
 #### Verification Module (`modules/verification/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `verification.service.ts` | Officer review workflow: queries, forwarding | `VerificationService` |
-| `verification.controller.ts` | REST endpoints for document verification | `VerificationController` |
-| `verification.module.ts` | Module wiring | `VerificationModule` |
+| File                         | Responsibility                               | Main Exports             |
+| ---------------------------- | -------------------------------------------- | ------------------------ |
+| `verification.service.ts`    | Officer review workflow: queries, forwarding | `VerificationService`    |
+| `verification.controller.ts` | REST endpoints for document verification     | `VerificationController` |
+| `verification.module.ts`     | Module wiring                                | `VerificationModule`     |
 
 #### Committee Module (`modules/committee/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `committee.service.ts` | 8-criterion evaluation logic | `CommitteeService` |
-| `committee.controller.ts` | Evaluation endpoints | `CommitteeController` |
-| `committee.module.ts` | Module wiring | `CommitteeModule` |
+| File                      | Responsibility               | Main Exports          |
+| ------------------------- | ---------------------------- | --------------------- |
+| `committee.service.ts`    | 8-criterion evaluation logic | `CommitteeService`    |
+| `committee.controller.ts` | Evaluation endpoints         | `CommitteeController` |
+| `committee.module.ts`     | Module wiring                | `CommitteeModule`     |
 
 #### Payments Module (`modules/payments/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `payments.service.ts` | Razorpay + NEFT payment management | `PaymentsService` |
-| `payments.controller.ts` | Payment endpoints | `PaymentsController` |
-| `payments.module.ts` | Module wiring | `PaymentsModule` |
+| File                     | Responsibility                     | Main Exports         |
+| ------------------------ | ---------------------------------- | -------------------- |
+| `payments.service.ts`    | Razorpay + NEFT payment management | `PaymentsService`    |
+| `payments.controller.ts` | Payment endpoints                  | `PaymentsController` |
+| `payments.module.ts`     | Module wiring                      | `PaymentsModule`     |
 
 #### Certificates Module (`modules/certificates/`)
 
-| File | Responsibility | Main Exports |
-|------|---------------|--------------|
-| `certificates.service.ts` | PDF generation, QR codes, certificate lifecycle | `CertificatesService` |
+| File                         | Responsibility                                  | Main Exports             |
+| ---------------------------- | ----------------------------------------------- | ------------------------ |
+| `certificates.service.ts`    | PDF generation, QR codes, certificate lifecycle | `CertificatesService`    |
 | `certificates.controller.ts` | Certificate endpoints (including public verify) | `CertificatesController` |
-| `certificates.module.ts` | Module wiring | `CertificatesModule` |
+| `certificates.module.ts`     | Module wiring                                   | `CertificatesModule`     |
 
 #### Additional Modules
 
-| Module | Files | Responsibility |
-|--------|-------|---------------|
-| `dashboard/` | controller, service, module | Role-specific KPI aggregation |
-| `admin/` | controller, service, module | User management, fees, APCD types, stats, MIS reports |
-| `notifications/` | controller, service, module, `channels/email.service.ts` | In-app + email notifications |
-| `audit-log/` | controller, service, module | System audit trail |
-| `oem-profile/` | controller, service, module, `dto/create-oem-profile.dto.ts` | OEM company profile CRUD |
-| `staff-details/` | controller, service, module | Technical staff management (Annexure 7) |
-| `installation-experience/` | controller, service, module | Past installation records (Annexure 6a) |
-| `field-verification/` | controller, service, module | Site inspection management |
-| `apcd-types/` | controller, service, module | APCD master data CRUD |
-| `users/` | controller, service, module | Internal user management |
+| Module                     | Files                                                                                                         | Responsibility                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `dashboard/`               | controller, service, module                                                                                   | Role-specific KPI aggregation                                  |
+| `admin/`                   | controller, service, module                                                                                   | User management, fees, APCD types, stats, MIS reports          |
+| `notifications/`           | controller, service, module, `channels/email.service.ts`                                                      | In-app + email notifications                                   |
+| `audit-log/`               | controller, service, module                                                                                   | System audit trail                                             |
+| `oem-profile/`             | controller, service, module, `dto/create-oem-profile.dto.ts`                                                  | OEM company profile CRUD                                       |
+| `staff-details/`           | controller, service, module                                                                                   | Technical staff management (Annexure 7)                        |
+| `installation-experience/` | controller, service, module                                                                                   | Past installation records (Annexure 6a)                        |
+| `field-verification/`      | controller, service, module                                                                                   | Site inspection management                                     |
+| `apcd-types/`              | controller, service, module                                                                                   | APCD master data CRUD                                          |
+| `users/`                   | controller, service, module, `dto/update-profile.dto.ts`, `dto/add-mobile.dto.ts`, `dto/verify-mobile.dto.ts` | Internal user management, profile updates, mobile verification |
+| `sms/`                     | service, module                                                                                               | SMS OTP delivery via MSG91 and Fast2SMS                        |
+| `scheduled-tasks/`         | service, module                                                                                               | Cron-based certificate expiry reminders and token cleanup      |
 
 ### Frontend (`apps/web/src/`)
 
-| Directory | Key Files | Responsibility |
-|-----------|-----------|---------------|
-| `app/` | 30+ `page.tsx` files | Next.js App Router pages |
-| `components/application/` | `step1-company-profile.tsx` through `step7-field-verification-sites.tsx` | Multi-step application form components |
-| `components/layout/` | `dashboard-layout.tsx`, `header.tsx`, `sidebar.tsx` | Layout shell with role-based sidebar |
-| `components/ui/` | 15+ shadcn/ui components | Reusable UI primitives |
-| `lib/api.ts` | Axios instance with JWT interceptor | `api` instance, request/response interceptors |
-| `lib/utils.ts` | Tailwind `cn()` helper | `cn()` |
-| `store/auth-store.ts` | Zustand store with localStorage persistence | `useAuthStore` |
-| `providers/auth-provider.tsx` | JWT refresh logic, redirect on 401 | `AuthProvider` |
-| `providers/query-provider.tsx` | React Query client config | `QueryProvider` |
+| Directory                      | Key Files                                                                       | Responsibility                                  |
+| ------------------------------ | ------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `app/`                         | 30+ `page.tsx` files                                                            | Next.js App Router pages                        |
+| `components/application/`      | `step1-company-profile.tsx` through `step7-field-verification-sites.tsx`        | Multi-step application form components          |
+| `components/layout/`           | `dashboard-layout.tsx`, `header.tsx`, `sidebar.tsx`                             | Layout shell with role-based sidebar            |
+| `components/ui/`               | 15+ shadcn/ui components                                                        | Reusable UI primitives                          |
+| `lib/api.ts`                   | Axios instance with JWT interceptor                                             | `api` instance, request/response interceptors   |
+| `lib/utils.ts`                 | Tailwind `cn()` helper                                                          | `cn()`                                          |
+| `store/auth-store.ts`          | Zustand store with localStorage persistence                                     | `useAuthStore`                                  |
+| `store/language-store.ts`      | Zustand store for locale selection with localStorage persistence                | `useLanguageStore`                              |
+| `lib/i18n/en.json`             | English translation strings (dot-notation keys)                                 | —                                               |
+| `lib/i18n/hi.json`             | Hindi translation strings (dot-notation keys)                                   | —                                               |
+| `lib/i18n/index.ts`            | Translation lookup with dot-notation key resolution and parameter interpolation | `getTranslation(locale, key, params)`           |
+| `hooks/use-translation.ts`     | Memoized translation hook, re-renders on locale change                          | `useTranslation()` → `{ t, locale, setLocale }` |
+| `providers/auth-provider.tsx`  | JWT refresh logic, redirect on 401                                              | `AuthProvider`                                  |
+| `providers/query-provider.tsx` | React Query client config                                                       | `QueryProvider`                                 |
 
 ### Shared Package (`packages/shared/src/`)
 
-| Directory | Key Files | Exports |
-|-----------|-----------|---------|
-| `types/` | `user.types.ts`, `application.types.ts`, `attachment.types.ts`, `payment.types.ts`, `apcd.types.ts`, `evaluation.types.ts`, `certificate.types.ts` | `Role`, `ApplicationStatus`, `STATUS_TRANSITIONS`, `STATUS_LABELS`, `APPLICATION_STEPS`, `ROLE_LABELS`, type interfaces |
-| `constants/` | `fee-structure.ts`, `document-requirements.ts`, `apcd-categories.ts`, `evaluation-criteria.ts` | `FEE_AMOUNTS`, `GST_RATE`, `DISCOUNT_PERCENT`, `MANDATORY_DOCUMENTS`, `APCD_CATEGORY_LABELS`, `EVALUATION_CRITERIA` |
-| `validators/` | `application.validator.ts`, `oem-profile.validator.ts`, `payment.validator.ts` | 17 Zod schemas for form validation |
+| Directory     | Key Files                                                                                                                                          | Exports                                                                                                                 |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `types/`      | `user.types.ts`, `application.types.ts`, `attachment.types.ts`, `payment.types.ts`, `apcd.types.ts`, `evaluation.types.ts`, `certificate.types.ts` | `Role`, `ApplicationStatus`, `STATUS_TRANSITIONS`, `STATUS_LABELS`, `APPLICATION_STEPS`, `ROLE_LABELS`, type interfaces |
+| `constants/`  | `fee-structure.ts`, `document-requirements.ts`, `apcd-categories.ts`, `evaluation-criteria.ts`                                                     | `FEE_AMOUNTS`, `GST_RATE`, `DISCOUNT_PERCENT`, `MANDATORY_DOCUMENTS`, `APCD_CATEGORY_LABELS`, `EVALUATION_CRITERIA`     |
+| `validators/` | `application.validator.ts`, `oem-profile.validator.ts`, `payment.validator.ts`                                                                     | 17 Zod schemas for form validation                                                                                      |
 
 ### Database Package (`packages/database/`)
 
-| File | Responsibility |
-|------|---------------|
-| `prisma/schema.prisma` | 22 models, 16 enums, full relational schema |
-| `prisma/seed.ts` | Database seeding (APCD types, fee configs, test users) |
-| `prisma/seed-dummy-data.ts` | Extended dummy data for development |
-| `index.ts` | Re-exports `@prisma/client` types |
+| File                        | Responsibility                                         |
+| --------------------------- | ------------------------------------------------------ |
+| `prisma/schema.prisma`      | 22 models, 16 enums, full relational schema            |
+| `prisma/seed.ts`            | Database seeding (APCD types, fee configs, test users) |
+| `prisma/seed-dummy-data.ts` | Extended dummy data for development                    |
+| `index.ts`                  | Re-exports `@prisma/client` types                      |
 
 ---
 
@@ -153,6 +166,7 @@
 ### AuthService
 
 #### `register(dto: RegisterDto): Promise<TokenResponse>`
+
 - **Purpose**: Registers a new OEM user account
 - **Inputs**: `dto.email` (string), `dto.password` (string, 8+ chars with uppercase/lowercase/number/special), `dto.firstName`, `dto.lastName`, `dto.phone`
 - **Outputs**: `{ accessToken, refreshToken, expiresIn, user: { id, email, role, firstName, lastName } }`
@@ -161,6 +175,7 @@
 - **Business rules**: Email is lowercased before storage; password hashed with bcryptjs salt=12
 
 #### `login(dto: LoginDto): Promise<TokenResponse>`
+
 - **Purpose**: Authenticates user and issues tokens
 - **Inputs**: `dto.email` (string), `dto.password` (string)
 - **Outputs**: Same as register
@@ -169,6 +184,7 @@
 - **Business rules**: Same error message for wrong email and wrong password (prevents enumeration)
 
 #### `refreshTokens(userId: string, refreshToken: string): Promise<TokenPair>`
+
 - **Purpose**: Rotates access + refresh tokens
 - **Inputs**: User ID from JWT, refresh token string
 - **Outputs**: `{ accessToken, refreshToken, expiresIn }`
@@ -176,42 +192,159 @@
 - **Error handling**: `UnauthorizedException` if token not found, revoked, or expired
 
 #### `getMe(userId: string): Promise<UserProfile>`
+
 - **Purpose**: Returns current user profile
 - **Inputs**: User ID from JWT
 - **Outputs**: User object with selected fields
 - **Error handling**: `UnauthorizedException` if user not found
 
 #### `logout(userId: string): Promise<void>`
+
 - **Purpose**: Revokes all refresh tokens for user
 - **Side effects**: Sets `revokedAt` on all active RefreshToken records
 
 #### `resetTestPasswords(secret: string): Promise<ResetResult>`
+
 - **Purpose**: Upserts 7 test users with known passwords (CI/CD only)
 - **Inputs**: Secret header value
 - **Error handling**: `ForbiddenException` if secret doesn't match `SEED_SECRET`
 - **Business rules**: Creates users if they don't exist; also creates OEM profile for test OEM
 
+#### `forgotPassword(dto: ForgotPasswordDto): Promise<{ message: string }>`
+
+- **Purpose**: Initiates password reset flow by sending a reset link via email
+- **Inputs**: `dto.email` (string)
+- **Outputs**: `{ message: "If an account exists, a reset link has been sent" }`
+- **Side effects**: Generates a time-limited reset token, stores it in the database, sends email with reset link
+- **Business rules**: Always returns success message regardless of whether the email exists (prevents enumeration)
+
+#### `resetPassword(dto: ResetPasswordDto): Promise<{ message: string }>`
+
+- **Purpose**: Resets password using a token from the forgot-password email
+- **Inputs**: `dto.token` (string), `dto.newPassword` (string, must meet password policy)
+- **Outputs**: `{ message: "Password has been reset successfully" }`
+- **Side effects**: Hashes new password with bcryptjs (salt=12), updates User record, invalidates the reset token, revokes all existing refresh tokens
+- **Error handling**: `BadRequestException` if token is invalid or expired
+
+#### `changePassword(userId: string, dto: ChangePasswordDto): Promise<{ message: string }>`
+
+- **Purpose**: Allows authenticated user to change their password
+- **Inputs**: `dto.currentPassword` (string), `dto.newPassword` (string, must meet password policy)
+- **Outputs**: `{ message: "Password changed successfully" }`
+- **Side effects**: Verifies current password, hashes new password with bcryptjs (salt=12), updates User record
+- **Error handling**: `UnauthorizedException` if current password is incorrect; `BadRequestException` if new password matches current
+
+#### `changeEmail(userId: string, dto: ChangeEmailDto): Promise<{ message: string }>`
+
+- **Purpose**: Initiates email change by sending a confirmation link to the new email
+- **Inputs**: `dto.newEmail` (string)
+- **Outputs**: `{ message: "Confirmation link sent to new email" }`
+- **Side effects**: Generates email-change confirmation token, sends verification email to the new address
+- **Error handling**: `ConflictException` if the new email is already in use
+
+#### `confirmEmailChange(token: string): Promise<{ message: string }>`
+
+- **Purpose**: Confirms email change using the token from the verification email
+- **Inputs**: `token` (string)
+- **Outputs**: `{ message: "Email updated successfully" }`
+- **Side effects**: Updates user email, invalidates the confirmation token, revokes all existing refresh tokens
+- **Error handling**: `BadRequestException` if token is invalid or expired
+
+### UsersService
+
+#### `getProfile(userId: string): Promise<UserProfile>`
+
+- **Purpose**: Returns full user profile including OEM profile data if applicable
+- **Inputs**: User ID from JWT
+- **Outputs**: User object with profile fields, role, and associated OEM profile
+- **Error handling**: `NotFoundException` if user not found
+
+#### `updateProfile(userId: string, dto: UpdateProfileDto, photo?: Express.Multer.File): Promise<User>`
+
+- **Purpose**: Updates user's basic profile information and optional profile photo
+- **Inputs**: `dto.firstName` (optional string), `dto.lastName` (optional string), `photo` (optional multipart file)
+- **Outputs**: Updated User object
+- **Side effects**: If photo provided, uploads to MinIO under `profiles/{userId}/` path, updates `photoUrl` on User record
+- **Error handling**: `NotFoundException` if user not found; `BadRequestException` if photo exceeds size or type limits
+
+#### `addMobile(userId: string, dto: AddMobileDto): Promise<{ message: string }>`
+
+- **Purpose**: Initiates mobile number addition by sending an OTP via SMS
+- **Inputs**: `dto.mobile` (string, 10-digit Indian mobile number)
+- **Outputs**: `{ message: "OTP sent to mobile number" }`
+- **Side effects**: Generates 6-digit OTP, stores hashed OTP with expiry in database, sends OTP via `SmsService`
+- **Business rules**: OTP expires after 10 minutes; rate-limited to prevent abuse
+
+#### `verifyMobile(userId: string, dto: VerifyMobileDto): Promise<{ message: string }>`
+
+- **Purpose**: Verifies mobile number by validating the OTP
+- **Inputs**: `dto.otp` (string, exactly 6 digits)
+- **Outputs**: `{ message: "Mobile number verified successfully" }`
+- **Side effects**: Updates user's mobile number and sets `isMobileVerified = true`
+- **Error handling**: `BadRequestException` if OTP is invalid or expired
+
+### SmsService
+
+#### `sendOtp(mobile: string, otp: string): Promise<boolean>`
+
+- **Purpose**: Sends an OTP to a mobile number using configured SMS provider
+- **Inputs**: `mobile` (10-digit Indian mobile string), `otp` (6-digit OTP string)
+- **Outputs**: `true` if sent successfully, `false` on failure
+- **Business rules**: Tries primary provider (MSG91) first, falls back to secondary (Fast2SMS) on failure; logs failures but does not throw
+
+#### `private sendViaMSG91(mobile: string, otp: string): Promise<boolean>`
+
+- **Purpose**: Sends OTP via MSG91 API
+- **Inputs**: Mobile number, OTP string
+- **Outputs**: `true` on success
+- **Business rules**: Requires `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID` environment variables
+
+#### `private sendViaFast2SMS(mobile: string, otp: string): Promise<boolean>`
+
+- **Purpose**: Sends OTP via Fast2SMS API (fallback provider)
+- **Inputs**: Mobile number, OTP string
+- **Outputs**: `true` on success
+- **Business rules**: Requires `FAST2SMS_API_KEY` environment variable
+
+### ScheduledTasksService
+
+#### `@Cron(CronExpression.EVERY_DAY_AT_8AM) sendCertificateExpiryReminders(): Promise<void>`
+
+- **Purpose**: Sends reminder notifications for certificates approaching expiry
+- **Side effects**: Queries certificates expiring within 30/60/90 days, sends email and in-app notifications to OEMs
+- **Business rules**: Sends reminders at 90, 60, and 30 days before expiry; does not send duplicate reminders on the same day
+
+#### `@Cron(CronExpression.EVERY_DAY_AT_2AM) cleanupExpiredTokens(): Promise<void>`
+
+- **Purpose**: Removes expired password-reset tokens, email-change tokens, and revoked refresh tokens
+- **Side effects**: Deletes tokens older than their TTL from the database
+- **Business rules**: Cleans up reset tokens expired >24 hours, refresh tokens revoked >7 days
+
 ### ApplicationsService
 
 #### `create(userId: string): Promise<Application>`
+
 - **Purpose**: Creates a draft application or returns existing draft
 - **Side effects**: Creates Application (status=DRAFT), generates `APCD-YYYY-NNNN` number
 - **Error handling**: `BadRequestException` if user has no OEM profile
 - **Business rules**: Reuses existing DRAFT application if one exists
 
 #### `update(id: string, userId: string, dto: UpdateApplicationDto): Promise<Application>`
+
 - **Purpose**: Updates draft/queried application (auto-save per step)
 - **Side effects**: Updates application fields, upserts contact persons, syncs APCD selections
 - **Error handling**: `NotFoundException`, `ForbiddenException` (not owner), `BadRequestException` (wrong status)
 - **Business rules**: Only DRAFT and QUERIED applications can be updated
 
 #### `submit(id: string, userId: string): Promise<Application>`
+
 - **Purpose**: Submits application (DRAFT -> SUBMITTED)
 - **Side effects**: Runs `ApplicationValidatorService.validateForSubmission()`, creates StatusHistory
 - **Error handling**: `BadRequestException` with array of validation errors if incomplete
 - **Business rules**: 11 validation rules must pass (profile, contacts, turnover, ISO, APCDs, experiences, staff, documents, geo-photos, payment, declaration)
 
 #### `changeStatus(id: string, newStatus: ApplicationStatus, changedBy: string, remarks?: string): Promise<Application>`
+
 - **Purpose**: Officer/admin status transition
 - **Side effects**: Creates StatusHistory, sets timestamps (submittedAt, approvedAt, rejectedAt, lastQueriedAt)
 - **Error handling**: `BadRequestException` for invalid transitions
@@ -220,6 +353,7 @@
 ### ApplicationValidatorService
 
 #### `validateForSubmission(applicationId: string): Promise<string[]>`
+
 - **Purpose**: Validates application completeness against 11 rules
 - **Inputs**: Application ID
 - **Outputs**: Array of error strings (empty = valid)
@@ -241,6 +375,7 @@
 ### FeeCalculatorService
 
 #### `calculateForApplication(applicationId: string, userId: string): Promise<FeeBreakdown>`
+
 - **Purpose**: Calculates total fees based on APCD count and discount eligibility
 - **Outputs**: `{ applicationFee, empanelmentFee, grandTotal, isDiscountEligible }`
 - **Business rules**:
@@ -252,18 +387,21 @@
 ### AttachmentsService
 
 #### `upload(applicationId: string, documentType: DocumentType, file: Multer.File, userId: string, photoSlot?: string): Promise<Attachment>`
+
 - **Purpose**: Uploads document to MinIO and creates metadata record
 - **Side effects**: Stores file in MinIO bucket, creates Attachment record
 - **Error handling**: `NotFoundException` (app), `ForbiddenException` (not owner), `BadRequestException` (file too large/wrong type)
 - **Business rules**: For `GEO_TAGGED_PHOTOS`, validates EXIF GPS data via `GeoTagValidatorService`; stores coordinates and validity flag
 
 #### `verify(attachmentId: string, verifiedBy: string, isVerified: boolean, note?: string): Promise<Attachment>`
+
 - **Purpose**: Officer marks document as verified
 - **Side effects**: Updates `isVerified`, `verifiedBy`, `verifiedAt`, `verificationNote`
 
 ### GeoTagValidatorService
 
 #### `extractAndValidate(buffer: Buffer): Promise<GeoValidationResult>`
+
 - **Purpose**: Extracts GPS coordinates and timestamp from EXIF data
 - **Outputs**: `{ hasGps, hasTimestamp, hasValidGeoTag, latitude?, longitude?, timestamp?, isWithinIndia?, error? }`
 - **Business rules**: Uses exifr library; coordinates must be within India bounds (6.75-35.50 N, 68.11-97.40 E)
@@ -271,16 +409,19 @@
 ### VerificationService
 
 #### `raiseQuery(applicationId: string, officerId: string, dto: RaiseQueryDto): Promise<Query>`
+
 - **Purpose**: Officer raises a query on application
 - **Side effects**: Creates Query (status=OPEN), transitions application to QUERIED, creates StatusHistory
 - **Business rules**: Sets deadline; application only transitions to QUERIED once
 
 #### `respondToQuery(queryId: string, userId: string, dto: RespondToQueryDto): Promise<Result>`
+
 - **Purpose**: OEM responds to query
 - **Side effects**: Creates QueryResponse, updates Query status to RESPONDED; auto-transitions application to RESUBMITTED if all queries have responses
 - **Error handling**: `ForbiddenException` if user is not the application owner
 
 #### `forwardToCommittee(applicationId: string, officerId: string, remarks: string): Promise<Application>`
+
 - **Purpose**: Forwards verified application to committee review
 - **Side effects**: Transitions status to COMMITTEE_REVIEW, creates StatusHistory
 - **Error handling**: `BadRequestException` if application not in reviewable status
@@ -288,6 +429,7 @@
 ### CommitteeService
 
 #### `submitEvaluation(applicationId: string, evaluatorId: string, dto: SubmitEvaluationDto): Promise<CommitteeEvaluation>`
+
 - **Purpose**: Submits 8-criterion evaluation
 - **Inputs**: Scores per criterion (0-10), recommendation, remarks
 - **Side effects**: Creates CommitteeEvaluation + EvaluationScore records
@@ -295,62 +437,83 @@
 - **Business rules**: 8 criteria x 10 points max each = 80 possible; pass threshold = 60
 
 #### `finalizeDecision(applicationId: string, officerId: string, decision: string, remarks: string): Promise<Application>`
+
 - **Purpose**: Finalizes committee outcome (APPROVED/REJECTED)
 - **Side effects**: Transitions application status, sets timestamps
 
 ### PaymentsService
 
 #### `createRazorpayOrder(userId: string, dto: RazorpayOrderDto): Promise<OrderResult>`
+
 - **Purpose**: Creates Razorpay payment order
 - **Side effects**: Creates Payment record (INITIATED), calls Razorpay API
 - **Outputs**: `{ paymentId, orderId, amount, currency, keyId }`
 
 #### `verifyRazorpayPayment(dto: VerifyRazorpayDto): Promise<Payment>`
+
 - **Purpose**: Verifies Razorpay payment signature
 - **Side effects**: Updates Payment status to COMPLETED/FAILED
 - **Business rules**: HMAC-SHA256 signature verification against `RAZORPAY_KEY_SECRET`
 
 #### `recordManualPayment(userId: string, dto: ManualPaymentDto): Promise<Payment>`
+
 - **Purpose**: Records NEFT/RTGS payment pending officer verification
 - **Side effects**: Creates Payment (VERIFICATION_PENDING) with UTR number and bank details
 
 #### `verifyManualPayment(paymentId: string, officerId: string, isVerified: boolean, remarks?: string): Promise<Payment>`
+
 - **Purpose**: Officer verifies manual payment
 - **Side effects**: Updates Payment to VERIFIED/FAILED, may trigger application status change
+
+#### `handleRazorpayWebhook(body: any, signature: string): Promise<void>`
+
+- **Purpose**: Processes asynchronous Razorpay webhook events (e.g., `payment.captured`, `payment.failed`)
+- **Inputs**: Raw request body, `X-Razorpay-Signature` header
+- **Side effects**: Updates Payment status based on webhook event type; handles cases where `verifyRazorpayPayment` was not called (network failure, browser close)
+- **Error handling**: Silently ignores duplicate events (idempotent); throws `UnauthorizedException` if signature verification fails
+- **Business rules**: HMAC-SHA256 signature verification against `RAZORPAY_WEBHOOK_SECRET`; processes only `payment.captured` and `payment.failed` event types
 
 ### CertificatesService
 
 #### `generateCertificate(officerId: string, dto: GenerateCertificateDto): Promise<Certificate>`
+
 - **Purpose**: Issues empanelment certificate for approved application
 - **Side effects**: Creates Certificate record, generates `NPC/APCD/YYYY/NNNNN` number
 - **Business rules**: 2-year validity from issue date; QR code points to public verification URL
 
 #### `generatePDFBuffer(certificateId: string): Promise<Buffer>`
+
 - **Purpose**: Generates PDF document with borders, header, APCD table, QR code
 - **Outputs**: PDF buffer via pdfkit
 
 #### `verifyCertificate(certificateNumber: string): Promise<VerificationResult>`
+
 - **Purpose**: Public certificate verification
 - **Outputs**: `{ isValid, certificateNumber, status, isExpired, companyName, apcdTypes, validUntil }`
 
 ### DashboardService
 
 #### `getOemDashboard(userId: string): Promise<OemDashboard>`
+
 - Returns: application counts by status, active certificates, expiring certificates, pending queries, total payments
 
 #### `getOfficerDashboard(): Promise<OfficerDashboard>`
+
 - Returns: applications by status, pending payments, pending field verifications, today's stats
 
 #### `getAdminDashboard(): Promise<AdminDashboard>`
+
 - Returns: officer dashboard + user stats (by role), certificate stats, payment stats
 
 ### NotificationsService
 
 #### `send(dto: SendNotificationDto): Promise<Notification>`
+
 - Creates in-app notification + sends email if user has email address
 - Email failures are logged but don't throw
 
 #### `notifyApplicationStatusChange(applicationId: string, newStatus: string, remarks?: string): Promise<Notification>`
+
 - Sends status-specific notification with appropriate title/message
 
 ---
@@ -358,6 +521,7 @@
 ## Domain Model Details
 
 ### Application Status Machine
+
 The application progresses through 18 possible statuses. Valid transitions are enforced in `STATUS_TRANSITIONS`:
 
 ```
@@ -372,28 +536,33 @@ APPROVED → SUSPENDED → BLACKLISTED
 ```
 
 ### Fee Calculation Business Rules
-| Fee Type | Base Amount (INR) | Calculation |
-|----------|-------------------|-------------|
-| Application Fee | 25,000 | Fixed, one-time |
-| Empanelment Fee | 65,000 | Per APCD type seeking empanelment |
-| Field Verification | 57,000 | Per application |
-| Emission Testing | TBD | Per APCD type |
-| Annual Renewal | 35,000 | Per year |
-| Surveillance Visit | 25,000 | Per visit |
+
+| Fee Type           | Base Amount (INR) | Calculation                       |
+| ------------------ | ----------------- | --------------------------------- |
+| Application Fee    | 25,000            | Fixed, one-time                   |
+| Empanelment Fee    | 65,000            | Per APCD type seeking empanelment |
+| Field Verification | 57,000            | Per application                   |
+| Emission Testing   | TBD               | Per APCD type                     |
+| Annual Renewal     | 35,000            | Per year                          |
+| Surveillance Visit | 25,000            | Per visit                         |
 
 - **GST**: 18% applied to all fees
 - **Discount**: 15% off base amount for MSE/Startup/Local Supplier
 - **Discount eligibility**: Checked via `OemProfile.isMSE`, `isStartup`, or `isLocalSupplier`
 
 ### Document Requirements
+
 26 document types defined in `DocumentType` enum. Mandatory documents (from `MANDATORY_DOCUMENTS` constant):
+
 - Company Registration, GST Certificate, PAN Card
 - Service Support Undertaking, Non-Blacklisting Declaration
 - Turnover Certificate, ISO Certification, Product Datasheet
 - Test Certificate, GA Drawing, Geo-Tagged Photos (min 2)
 
 ### Evaluation Criteria (Committee)
+
 8 criteria, each scored 0-10:
+
 1. Experience & Scope of Supply
 2. Technical Specification of APCDs
 3. Technical Team & Capability
@@ -406,22 +575,35 @@ APPROVED → SUSPENDED → BLACKLISTED
 **Pass threshold**: 60 out of 100 maximum
 
 ### Permission Model
-| Action | Allowed Roles |
-|--------|--------------|
-| Register | Public (OEM only) |
-| Create/Update/Submit application | OEM |
-| View own applications | OEM |
-| View all applications | OFFICER, ADMIN, SUPER_ADMIN |
-| Verify documents | OFFICER |
-| Raise/resolve queries | OFFICER |
-| Forward to committee | OFFICER |
-| Evaluate application | COMMITTEE |
-| Conduct field verification | FIELD_VERIFIER |
-| Verify manual payments | OFFICER, DEALING_HAND |
-| Manage users | ADMIN, SUPER_ADMIN |
-| Manage fees/APCD types | ADMIN, SUPER_ADMIN |
-| Issue/revoke certificates | ADMIN, OFFICER |
-| View admin dashboard | ADMIN |
+
+| Action                           | Allowed Roles               |
+| -------------------------------- | --------------------------- |
+| Register                         | Public (OEM only)           |
+| Create/Update/Submit application | OEM                         |
+| View own applications            | OEM                         |
+| View all applications            | OFFICER, ADMIN, SUPER_ADMIN |
+| Verify documents                 | OFFICER                     |
+| Raise/resolve queries            | OFFICER                     |
+| Forward to committee             | OFFICER                     |
+| Evaluate application             | COMMITTEE                   |
+| Conduct field verification       | FIELD_VERIFIER              |
+| Verify manual payments           | OFFICER, DEALING_HAND       |
+| Manage users                     | ADMIN, SUPER_ADMIN          |
+| Manage fees/APCD types           | ADMIN, SUPER_ADMIN          |
+| Issue/revoke certificates        | ADMIN, OFFICER              |
+| View admin dashboard             | ADMIN                       |
+
+### New DTO Specifications
+
+| DTO                 | Fields                                           | Validation                                                                                       |
+| ------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `ForgotPasswordDto` | `email: string`                                  | Valid email format, required                                                                     |
+| `ResetPasswordDto`  | `token: string`, `newPassword: string`           | Token required; password must meet policy (8+ chars, uppercase, lowercase, number, special char) |
+| `ChangePasswordDto` | `currentPassword: string`, `newPassword: string` | Both required; `newPassword` must meet password policy                                           |
+| `ChangeEmailDto`    | `newEmail: string`                               | Valid email format, required                                                                     |
+| `AddMobileDto`      | `mobile: string`                                 | 10-digit Indian mobile number (`/^[6-9]\d{9}$/`)                                                 |
+| `VerifyMobileDto`   | `otp: string`                                    | Exactly 6 digits (`/^\d{6}$/`)                                                                   |
+| `UpdateProfileDto`  | `firstName?: string`, `lastName?: string`        | Both optional; trimmed, 1-100 characters if provided                                             |
 
 ---
 
@@ -533,42 +715,72 @@ APPROVED → SUSPENDED → BLACKLISTED
 ## Testing Strategy (Design Perspective)
 
 ### Auth Module
-- **Unit**: Register (email uniqueness, password hashing, OEM role assignment), Login (valid/invalid credentials, inactive account), Token refresh (rotation, revocation), Logout
-- **Integration**: Full register → login → refresh → logout flow against test DB
-- **E2E**: Login page, registration form, session persistence
+
+- **Unit**: Register (email uniqueness, password hashing, OEM role assignment), Login (valid/invalid credentials, inactive account), Token refresh (rotation, revocation), Logout, Forgot password (token generation, email enumeration prevention), Reset password (token validation, expiry, token invalidation), Change password (current password verification, same-password rejection), Change email (duplicate check, confirmation token), Confirm email change (token validation, refresh token revocation)
+- **Integration**: Full register → login → refresh → logout flow against test DB; forgot → reset password flow; change email → confirm flow
+- **E2E**: Login page, registration form, session persistence, forgot password page, change password form
 
 ### Applications Module
+
 - **Unit**: Application creation (draft reuse, number generation), Update validation (step-by-step), Submit validation (all 11 rules), Status transitions (valid/invalid)
 - **Integration**: Create → update steps → upload docs → pay → submit flow
 - **E2E**: Full 9-step form completion journey
 - **Risk area**: `ApplicationValidatorService` -- 11 interacting rules with edge cases
 
 ### Attachments Module
+
 - **Unit**: File type validation, geo-tag extraction, MinIO path generation
 - **Integration**: Upload → download → verify cycle with real MinIO
 - **Risk area**: Geo-tag validation edge cases (no EXIF, partial GPS, outside India)
 
 ### Verification Module
+
 - **Unit**: Query creation, response validation, auto-resubmit logic, committee forwarding
 - **Integration**: Submit → officer review → query → respond → resolve → forward
 - **Risk area**: Auto-resubmit when all queries responded
 
 ### Committee Module
+
 - **Unit**: Score calculation, pass/fail threshold, duplicate evaluation prevention
 - **Integration**: Forward → evaluate → finalize decision
 - **Risk area**: Average score calculation across multiple evaluators
 
 ### Payments Module
+
 - **Unit**: Fee calculation (base, GST, discount), Razorpay signature verification, manual payment recording
 - **Integration**: Fee calculate → create order → verify → status update
 - **Risk area**: Razorpay signature verification, payment-to-application status coupling
 
 ### Certificates Module
+
 - **Unit**: Certificate number generation, PDF buffer generation, validity calculations, expiry detection
 - **Integration**: Approve → generate certificate → verify → renew cycle
 - **Risk area**: PDF generation (visual regression), QR code data integrity
 
+### Users Module (Profile & Mobile)
+
+- **Unit**: Profile retrieval, profile update (with/without photo), mobile OTP generation, OTP verification (valid/invalid/expired)
+- **Integration**: Add mobile → send OTP → verify OTP flow; update profile with photo upload
+- **Risk area**: OTP expiry timing, rate limiting, mobile number format validation
+
+### SMS Module
+
+- **Unit**: MSG91 provider call, Fast2SMS fallback, failure logging
+- **Risk area**: Provider failover logic, API key configuration
+
+### Scheduled Tasks Module
+
+- **Unit**: Certificate expiry query logic (30/60/90 day windows), token cleanup age filtering
+- **Risk area**: Duplicate reminder prevention, timezone handling for cron execution
+
+### i18n System (Frontend)
+
+- **Unit**: `getTranslation()` dot-notation key lookup, parameter interpolation, missing key fallback
+- **Unit**: `useTranslation()` hook memoization, locale change re-render
+- **Risk area**: Missing translation keys returning raw key strings, nested key resolution
+
 ### Shared Validators
+
 - **Unit**: All 17 Zod schemas with valid/invalid inputs
 - **Risk area**: GST regex (`/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/`), PAN regex
 
@@ -577,6 +789,7 @@ APPROVED → SUSPENDED → BLACKLISTED
 ## Refactoring / Change Rules
 
 ### SAFE Changes (Low Risk)
+
 - Adding new optional fields to DTOs
 - Adding new dashboard widgets (read-only aggregations)
 - Adding new notification types
@@ -586,6 +799,7 @@ APPROVED → SUSPENDED → BLACKLISTED
 - **Required tests**: Unit tests for changed module
 
 ### DANGEROUS Changes (High Risk)
+
 - Modifying `ApplicationValidatorService` rules -- affects all submissions
 - Changing `STATUS_TRANSITIONS` map -- affects entire workflow
 - Modifying fee calculation logic -- financial impact
@@ -597,11 +811,16 @@ APPROVED → SUSPENDED → BLACKLISTED
 
 ### Critical Test Suites to Run
 
-| Change Area | Must Run |
-|-------------|----------|
-| Auth changes | `auth.service.spec.ts`, `jwt-auth.guard.spec.ts`, auth integration tests |
-| Application logic | `applications.service.spec.ts`, `application-validator.service.spec.ts`, application integration tests |
-| Payment changes | `payments.service.spec.ts`, payment integration tests |
-| Role/permission changes | `roles.guard.spec.ts`, RBAC integration tests, all E2E journeys |
-| Database schema | ALL tests (schema changes cascade everywhere) |
-| Shared package changes | ALL tests (both API and web consume shared types) |
+| Change Area             | Must Run                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| Auth changes            | `auth.service.spec.ts`, `jwt-auth.guard.spec.ts`, auth integration tests                               |
+| Application logic       | `applications.service.spec.ts`, `application-validator.service.spec.ts`, application integration tests |
+| Payment changes         | `payments.service.spec.ts`, payment integration tests                                                  |
+| Role/permission changes | `roles.guard.spec.ts`, RBAC integration tests, all E2E journeys                                        |
+| Database schema         | ALL tests (schema changes cascade everywhere)                                                          |
+| Shared package changes  | ALL tests (both API and web consume shared types)                                                      |
+| Password reset/change   | `auth.service.spec.ts`, auth integration tests, E2E login journey                                      |
+| User profile/mobile     | `users.service.spec.ts`, `sms.service.spec.ts`, user integration tests                                 |
+| Scheduled tasks         | `scheduled-tasks.service.spec.ts`, certificate integration tests                                       |
+| Razorpay webhook        | `payments.service.spec.ts`, payment integration tests                                                  |
+| i18n translations       | Frontend unit tests for `getTranslation()`, `useTranslation()` hook tests                              |

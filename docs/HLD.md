@@ -3,9 +3,11 @@
 ## System Overview
 
 ### Purpose
+
 The APCD (Air Pollution Control Devices) OEM Empanelment Portal is a web application built for the **National Productivity Council (NPC)** on behalf of the **Central Pollution Control Board (CPCB)**. It digitises the end-to-end empanelment lifecycle for manufacturers (OEMs) of air pollution control equipment in India.
 
 Key capabilities:
+
 - Multi-step application form with 26+ document uploads
 - Role-based workflow spanning 7 user roles
 - Committee-based evaluation with 8 scoring criteria
@@ -16,15 +18,15 @@ Key capabilities:
 
 ### User Roles
 
-| Role | Responsibility |
-|------|---------------|
-| **OEM** | Submits empanelment applications, uploads documents, pays fees, responds to queries |
-| **OFFICER** | Reviews submitted applications, verifies documents, raises queries, forwards to committee |
-| **COMMITTEE** | Evaluates applications on 8 criteria (100 marks, 60 passing threshold) |
-| **FIELD_VERIFIER** | Conducts on-site inspections at 3 installation sites per application |
-| **DEALING_HAND** | Manages lab testing bills, verifies manual NEFT/RTGS payments |
-| **ADMIN** | Manages APCD master data, fee configuration, certificates, system reports |
-| **SUPER_ADMIN** | Full system administration including user management |
+| Role               | Responsibility                                                                            |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| **OEM**            | Submits empanelment applications, uploads documents, pays fees, responds to queries       |
+| **OFFICER**        | Reviews submitted applications, verifies documents, raises queries, forwards to committee |
+| **COMMITTEE**      | Evaluates applications on 8 criteria (100 marks, 60 passing threshold)                    |
+| **FIELD_VERIFIER** | Conducts on-site inspections at 3 installation sites per application                      |
+| **DEALING_HAND**   | Manages lab testing bills, verifies manual NEFT/RTGS payments                             |
+| **ADMIN**          | Manages APCD master data, fee configuration, certificates, system reports                 |
+| **SUPER_ADMIN**    | Full system administration including user management                                      |
 
 ### High-Level Application Flow
 
@@ -56,7 +58,7 @@ flowchart TD
 
 The system is a **Turborepo monorepo** with two applications and three shared packages:
 
-- **Frontend**: Next.js 14 (App Router) with React 18, Tailwind CSS, shadcn/ui
+- **Frontend**: Next.js 14 (App Router) with React 18, Tailwind CSS, shadcn/ui, bilingual i18n (English + Hindi)
 - **Backend**: NestJS 10 REST API with Prisma ORM
 - **Database**: PostgreSQL 15
 - **Object Storage**: MinIO (S3-compatible) for document uploads
@@ -70,29 +72,33 @@ graph TB
     end
 
     subgraph API[NestJS Backend]
-        Auth[Auth Module<br/>JWT + Passport]
+        Auth[Auth Module<br/>JWT + Passport + Account Mgmt]
         App[Applications Module]
         Attach[Attachments Module]
         Verify[Verification Module]
         Comm[Committee Module]
         FV[Field Verification Module]
-        Pay[Payments Module]
+        Pay[Payments Module<br/>+ Razorpay Webhook]
         Cert[Certificates Module]
         Dash[Dashboard Module]
         Admin[Admin Module]
-        Notif[Notifications Module]
+        Notif[Notifications Module<br/>Email + SMS]
         Audit[Audit Log Module]
+        Cron[Scheduled Tasks Module<br/>Certificate Reminders + Cleanup]
+        Perf[Performance Interceptor]
+        Cache[API Cache Layer<br/>APCD Types 5min TTL]
     end
 
     subgraph Infrastructure
         PG[(PostgreSQL 15<br/>via Prisma ORM)]
         Minio[(MinIO<br/>Object Storage)]
-        Redis[(Redis 7<br/>Rate Limiting)]
+        Redis[(Redis 7<br/>Rate Limiting + Caching)]
     end
 
     subgraph External
         RP[Razorpay<br/>Payment Gateway]
         SMTP[SMTP Server<br/>Email Notifications]
+        SMS[SMS Provider<br/>msg91 / fast2sms]
     end
 
     Web -->|REST API / JWT| API
@@ -103,6 +109,7 @@ graph TB
     Pay --> RP
     Pay --> PG
     Notif --> SMTP
+    Notif --> SMS
     Cert --> Minio
     Verify --> PG
     Comm --> PG
@@ -110,6 +117,9 @@ graph TB
     Dash --> PG
     Admin --> PG
     Audit --> PG
+    Cron --> PG
+    Cron --> Notif
+    Cache --> Redis
     API --> Redis
 ```
 
@@ -118,76 +128,138 @@ graph TB
 ## Component Breakdown
 
 ### 1. Auth Module
-- **Responsibility**: User registration (OEM only), login, JWT token management, password hashing, token refresh/revocation
-- **Inputs**: Email/password credentials, refresh tokens
-- **Outputs**: JWT access tokens (15m expiry), refresh tokens (7d expiry, stored in DB)
-- **Key Dependencies**: bcryptjs, @nestjs/jwt, @nestjs/passport, PrismaService
+
+- **Responsibility**: User registration (OEM only), login, JWT token management, password hashing, token refresh/revocation, account management (forgot/reset/change password, email change)
+- **Inputs**: Email/password credentials, refresh tokens, reset tokens, email change tokens
+- **Outputs**: JWT access tokens (15m expiry), refresh tokens (7d expiry, stored in DB), password reset emails, email change verification emails
+- **Account Management**:
+  - Forgot password: generates a `PasswordResetToken`, sends reset link via SMTP
+  - Reset password: validates token (checks expiry and used status), updates password hash
+  - Change password: verifies current password before accepting new password
+  - Change email: sends verification to new email via `EmailChangeToken`; GET endpoint confirms the change
+- **Key Dependencies**: bcryptjs, @nestjs/jwt, @nestjs/passport, PrismaService, NotificationsService
 
 ### 2. Applications Module
+
 - **Responsibility**: Full application lifecycle -- create, update (9-step auto-save), submit, resubmit, withdraw, status transitions
 - **Inputs**: Multi-step form data (company profile, APCD selections, financial data, ISO certifications, declaration)
 - **Outputs**: Application records with status tracking and audit history
 - **Key Dependencies**: ApplicationValidatorService, FeeCalculatorService, PrismaService
 
 ### 3. Attachments Module
+
 - **Responsibility**: Upload, download, verify, and manage 26 document types; geo-tag validation for factory photos
 - **Inputs**: Multipart file uploads (max 10MB per file, 100MB total)
 - **Outputs**: Stored files in MinIO with metadata (geo-coordinates, verification status)
 - **Key Dependencies**: MinIO service, GeoTagValidatorService (exifr), Sharp (image processing)
 
 ### 4. Verification Module
+
 - **Responsibility**: Officer document review workflow -- verify attachments, raise/resolve queries, forward to committee
 - **Inputs**: Application ID, verification decisions, query subjects/descriptions
 - **Outputs**: Verification status updates, queries with deadlines, status transitions
 - **Key Dependencies**: PrismaService, NotificationsService
 
 ### 5. Committee Module
+
 - **Responsibility**: 8-criterion evaluation by committee members (Experience, Technical Specs, Team, Financial, Legal, Complaint Handling, Client Feedback, Global Supply)
 - **Inputs**: Scores per criterion (0-10), recommendation (APPROVE/REJECT/NEED_MORE_INFO/FIELD_VERIFICATION_REQUIRED)
 - **Outputs**: Evaluation records, total score (max 100, pass threshold 60)
 - **Key Dependencies**: PrismaService
 
 ### 6. Field Verification Module
+
 - **Responsibility**: On-site inspection at 3 installation sites per application
 - **Inputs**: Site visit data (APCD condition, emission readings, compliance checks)
 - **Outputs**: Field reports with PASS/FAIL/CONDITIONAL results
 - **Key Dependencies**: PrismaService
 
 ### 7. Payments Module
-- **Responsibility**: Fee calculation (application Rs 25K, empanelment Rs 65K/APCD, 15% MSE discount, 18% GST), Razorpay integration, manual NEFT recording, payment verification
-- **Inputs**: Payment method selection, Razorpay callbacks, NEFT UTR details
+
+- **Responsibility**: Fee calculation (application Rs 25K, empanelment Rs 65K/APCD, 15% MSE discount, 18% GST), Razorpay integration, manual NEFT recording, payment verification, Razorpay webhook processing
+- **Inputs**: Payment method selection, Razorpay callbacks, NEFT UTR details, Razorpay webhook events
 - **Outputs**: Payment records with status tracking
+- **Razorpay Webhook**: `POST /payments/razorpay/webhook` -- verifies HMAC-SHA256 signature using `RAZORPAY_WEBHOOK_SECRET`, handles `payment.captured` (marks payment completed) and `payment.failed` (marks payment failed) events
 - **Key Dependencies**: Razorpay SDK, FeeCalculatorService, PrismaService
 
 ### 8. Certificates Module
+
 - **Responsibility**: Generate QR-coded empanelment certificates (PDF), public verification endpoint, renewal, revocation
 - **Inputs**: Approved application ID
 - **Outputs**: PDF certificates with QR codes, 2-year validity
 - **Key Dependencies**: pdfkit, qrcode, MinIO, PrismaService
 
-### 9. Dashboard Module
+### 9. Users Module
+
+- **Responsibility**: User profile management -- view profile, update name and photo, mobile number verification via SMS OTP
+- **Inputs**: Profile update data, photo uploads (multipart), mobile numbers, OTP codes
+- **Outputs**: User profile with mobile verification status, profile photo URL
+- **Mobile Verification Flow**: `POST /users/add-mobile` sends OTP via SmsService, `POST /users/verify-mobile` validates OTP (checks expiry, max attempts), sets `mobileVerified = true`
+- **Key Dependencies**: PrismaService, SmsService, MinIO (profile photo storage)
+
+### 10. Dashboard Module
+
 - **Responsibility**: Role-specific KPI aggregation (pending items, completed actions, payment stats)
 - **Inputs**: Authenticated user context
 - **Outputs**: Dashboard data objects per role
 - **Key Dependencies**: PrismaService
 
-### 10. Admin Module
+### 11. Admin Module
+
 - **Responsibility**: User management, APCD type master data, fee configuration, system statistics, reports
 - **Inputs**: Admin/SuperAdmin actions
 - **Outputs**: CRUD results, aggregated statistics
 - **Key Dependencies**: PrismaService
 
-### 11. Notifications Module
-- **Responsibility**: Triggered notifications for 10 event types (application submitted, queried, approved, etc.)
-- **Inputs**: Event triggers from other modules
-- **Outputs**: In-app notifications + email via Nodemailer
-- **Key Dependencies**: Nodemailer (SMTP), PrismaService
+### 12. Notifications Module
 
-### 12. Audit Log Module
+- **Responsibility**: Triggered notifications for 10 event types (application submitted, queried, approved, etc.) via email and SMS
+- **Inputs**: Event triggers from other modules
+- **Outputs**: In-app notifications + email via Nodemailer + SMS via SmsService
+- **SmsService**: Provider-based SMS OTP delivery
+  - `SMS_PROVIDER` env var switches between `msg91` and `fast2sms` implementations
+  - Used by mobile number verification flow (`/users/add-mobile`)
+  - Abstracted behind a provider interface for easy swapping
+- **Key Dependencies**: Nodemailer (SMTP), SmsService (msg91/fast2sms), PrismaService
+
+### 13. Audit Log Module
+
 - **Responsibility**: Record all system actions with before/after values for compliance
 - **Inputs**: Interceptor-captured request data
 - **Outputs**: Audit log entries with entity tracking
 - **Key Dependencies**: AuditLogInterceptor, PrismaService
+
+### 14. Scheduled Tasks Module
+
+- **Responsibility**: Background cron jobs using `@nestjs/schedule` for automated maintenance and reminders
+- **Schedule**:
+  - Daily 8:00 AM: Certificate expiry reminders -- sends notifications to OEMs whose certificates expire within a 60-day window
+  - Daily 2:00 AM: Token/OTP cleanup -- deletes expired `RefreshToken`, `PasswordResetToken`, `EmailChangeToken`, and `MobileOtp` records
+- **Key Dependencies**: @nestjs/schedule, PrismaService, NotificationsService
+
+### 15. Performance Interceptor
+
+- **Responsibility**: Monitors request execution time and logs slow requests exceeding 2 seconds
+- **Outputs**: Warning-level logs including request path, duration, HTTP method, and authenticated user context
+- **Key Dependencies**: NestJS interceptor pipeline
+
+### 16. API Caching
+
+- **Responsibility**: Response caching for read-heavy, infrequently-changing endpoints
+- **Implementation**: `@nestjs/cache-manager` with Redis backing
+- **Cached Endpoints**: APCD types controller (5-minute TTL)
+- **Key Dependencies**: @nestjs/cache-manager, Redis
+
+### 17. i18n / Bilingual Support (Frontend)
+
+- **Responsibility**: English and Hindi bilingual interface across the entire frontend
+- **Implementation**:
+  - Translation files: `en.json` and `hi.json` with 300+ keys covering all UI text
+  - Language store: Zustand-based store with `localStorage` persistence for user language preference
+  - `useTranslation()` hook: provides `t()` function for component-level text lookup
+  - `LanguageSwitcher` component: rendered in the application header, allows real-time language toggle
+- **Coverage**: All labels, form fields, buttons, status messages, error messages, dashboard headings, and notification text
+- **Key Dependencies**: Zustand (language store), localStorage (persistence)
 
 ---
 
@@ -308,65 +380,81 @@ sequenceDiagram
 
 ### API Endpoints by Domain
 
-| Domain | Method | Endpoint | Auth | Description |
-|--------|--------|----------|------|-------------|
-| **Auth** | POST | `/api/auth/register` | Public | OEM registration |
-| | POST | `/api/auth/login` | Public | Email/password login |
-| | POST | `/api/auth/refresh` | Public | Refresh access token |
-| | GET | `/api/auth/me` | JWT | Get current user |
-| | POST | `/api/auth/logout` | JWT | Revoke refresh tokens |
-| **Applications** | POST | `/api/applications` | OEM | Create draft |
-| | GET | `/api/applications` | JWT | List (role-filtered) |
-| | GET | `/api/applications/:id` | JWT | Get detail |
-| | PUT | `/api/applications/:id` | OEM | Update draft |
-| | POST | `/api/applications/:id/submit` | OEM | Submit application |
-| | POST | `/api/applications/:id/withdraw` | OEM | Withdraw |
-| **Attachments** | POST | `/api/attachments/upload` | JWT | Upload document |
-| | GET | `/api/attachments/:id` | JWT | Get metadata |
-| | GET | `/api/attachments/:id/download` | JWT | Download file |
-| | POST | `/api/attachments/:id/verify` | Officer | Verify document |
-| **Verification** | GET | `/api/verification/pending` | Officer | Pending reviews |
-| | GET | `/api/verification/application/:id` | Officer | Application detail |
-| | POST | `/api/verification/application/:id/query` | Officer | Raise query |
-| | POST | `/api/verification/query/:id/respond` | OEM | Respond to query |
-| | PUT | `/api/verification/query/:id/resolve` | Officer | Resolve query |
-| | POST | `/api/verification/application/:id/forward-to-committee` | Officer | Forward |
-| **Committee** | GET | `/api/committee/pending` | Committee | Pending evaluations |
-| | GET | `/api/committee/criteria` | Committee | Evaluation criteria |
-| | POST | `/api/committee/application/:id/evaluate` | Committee | Submit evaluation |
-| **Field Verification** | GET | `/api/field-verification/my-assignments` | Field Verifier | Assigned sites |
-| | POST | `/api/field-verification/application/:id/report` | Field Verifier | Submit report |
-| **Payments** | GET | `/api/payments/calculate/:applicationId` | OEM | Calculate fees |
-| | POST | `/api/payments/razorpay/create-order` | OEM | Create Razorpay order |
-| | POST | `/api/payments/razorpay/verify` | OEM | Verify payment |
-| | POST | `/api/payments/manual` | OEM | Record NEFT payment |
-| | PUT | `/api/payments/:id/verify` | Officer/DH | Verify manual payment |
-| **Certificates** | GET | `/api/certificates` | JWT | List certificates |
-| | GET | `/api/certificates/verify/:number` | Public | Public verification |
-| | POST | `/api/certificates/:id/revoke` | Admin | Revoke certificate |
-| **Admin** | GET | `/api/admin/users` | Admin | User list |
-| | GET | `/api/admin/fees` | Admin | Fee configuration |
-| | GET | `/api/admin/stats` | Admin | System statistics |
-| **Dashboard** | GET | `/api/dashboard/:role` | JWT | Role-specific dashboard |
+| Domain                 | Method | Endpoint                                                 | Auth           | Description                                       |
+| ---------------------- | ------ | -------------------------------------------------------- | -------------- | ------------------------------------------------- |
+| **Auth**               | POST   | `/api/auth/register`                                     | Public         | OEM registration                                  |
+|                        | POST   | `/api/auth/login`                                        | Public         | Email/password login                              |
+|                        | POST   | `/api/auth/refresh`                                      | Public         | Refresh access token                              |
+|                        | GET    | `/api/auth/me`                                           | JWT            | Get current user                                  |
+|                        | POST   | `/api/auth/logout`                                       | JWT            | Revoke refresh tokens                             |
+|                        | POST   | `/api/auth/forgot-password`                              | Public         | Generate reset token, send email via SMTP         |
+|                        | POST   | `/api/auth/reset-password`                               | Public         | Validate token and update password                |
+|                        | POST   | `/api/auth/change-password`                              | JWT            | Change password (verifies current password first) |
+|                        | POST   | `/api/auth/change-email`                                 | JWT            | Send verification email to new address            |
+|                        | GET    | `/api/auth/confirm-email-change`                         | Public         | Confirm email change via token                    |
+| **Applications**       | POST   | `/api/applications`                                      | OEM            | Create draft                                      |
+|                        | GET    | `/api/applications`                                      | JWT            | List (role-filtered)                              |
+|                        | GET    | `/api/applications/:id`                                  | JWT            | Get detail                                        |
+|                        | PUT    | `/api/applications/:id`                                  | OEM            | Update draft                                      |
+|                        | POST   | `/api/applications/:id/submit`                           | OEM            | Submit application                                |
+|                        | POST   | `/api/applications/:id/withdraw`                         | OEM            | Withdraw                                          |
+| **Attachments**        | POST   | `/api/attachments/upload`                                | JWT            | Upload document                                   |
+|                        | GET    | `/api/attachments/:id`                                   | JWT            | Get metadata                                      |
+|                        | GET    | `/api/attachments/:id/download`                          | JWT            | Download file                                     |
+|                        | POST   | `/api/attachments/:id/verify`                            | Officer        | Verify document                                   |
+| **Verification**       | GET    | `/api/verification/pending`                              | Officer        | Pending reviews                                   |
+|                        | GET    | `/api/verification/application/:id`                      | Officer        | Application detail                                |
+|                        | POST   | `/api/verification/application/:id/query`                | Officer        | Raise query                                       |
+|                        | POST   | `/api/verification/query/:id/respond`                    | OEM            | Respond to query                                  |
+|                        | PUT    | `/api/verification/query/:id/resolve`                    | Officer        | Resolve query                                     |
+|                        | POST   | `/api/verification/application/:id/forward-to-committee` | Officer        | Forward                                           |
+| **Committee**          | GET    | `/api/committee/pending`                                 | Committee      | Pending evaluations                               |
+|                        | GET    | `/api/committee/criteria`                                | Committee      | Evaluation criteria                               |
+|                        | POST   | `/api/committee/application/:id/evaluate`                | Committee      | Submit evaluation                                 |
+| **Field Verification** | GET    | `/api/field-verification/my-assignments`                 | Field Verifier | Assigned sites                                    |
+|                        | POST   | `/api/field-verification/application/:id/report`         | Field Verifier | Submit report                                     |
+| **Payments**           | GET    | `/api/payments/calculate/:applicationId`                 | OEM            | Calculate fees                                    |
+|                        | POST   | `/api/payments/razorpay/create-order`                    | OEM            | Create Razorpay order                             |
+|                        | POST   | `/api/payments/razorpay/verify`                          | OEM            | Verify payment                                    |
+|                        | POST   | `/api/payments/razorpay/webhook`                         | Public         | Razorpay webhook (HMAC-SHA256 verified)           |
+|                        | POST   | `/api/payments/manual`                                   | OEM            | Record NEFT payment                               |
+|                        | PUT    | `/api/payments/:id/verify`                               | Officer/DH     | Verify manual payment                             |
+| **Certificates**       | GET    | `/api/certificates`                                      | JWT            | List certificates                                 |
+|                        | GET    | `/api/certificates/verify/:number`                       | Public         | Public verification                               |
+|                        | POST   | `/api/certificates/:id/revoke`                           | Admin          | Revoke certificate                                |
+| **Admin**              | GET    | `/api/admin/users`                                       | Admin          | User list                                         |
+|                        | GET    | `/api/admin/fees`                                        | Admin          | Fee configuration                                 |
+|                        | GET    | `/api/admin/stats`                                       | Admin          | System statistics                                 |
+| **Users**              | GET    | `/api/users/profile`                                     | JWT            | Full profile (includes mobile, verified status)   |
+|                        | PATCH  | `/api/users/profile`                                     | JWT            | Update name + photo upload                        |
+|                        | POST   | `/api/users/add-mobile`                                  | JWT            | Send OTP via SMS to mobile number                 |
+|                        | POST   | `/api/users/verify-mobile`                               | JWT            | Verify mobile OTP                                 |
+| **Dashboard**          | GET    | `/api/dashboard/:role`                                   | JWT            | Role-specific dashboard                           |
 
 ### Authentication & Security
+
 - **JWT Authentication**: Access tokens (15m) + refresh tokens (7d, DB-stored, revocable)
+- **JWT Secret Validation**: Startup check ensures `JWT_SECRET` is set and meets minimum strength requirements; application refuses to start with an insecure or missing secret
 - **Password Policy**: 8+ characters, uppercase, lowercase, number, special character
 - **Password Hashing**: bcryptjs with salt rounds = 12
 - **Role-Based Access Control**: `@Roles()` decorator + `RolesGuard` on every protected endpoint
-- **Rate Limiting**: @nestjs/throttler (100 requests/60s default)
-- **Security Headers**: Helmet middleware
+- **Rate Limiting**: @nestjs/throttler (100 requests/60s default) with per-endpoint overrides for sensitive endpoints (login, forgot-password, OTP)
+- **Security Headers**: Helmet middleware + CSP (Content Security Policy) headers on the frontend
 - **CORS**: Configured per environment
+- **Gzip Compression**: Response compression enabled via NestJS compression middleware
+- **Body Size Limit**: 1MB maximum request body size (file uploads use multipart streaming)
+- **Graceful Shutdown**: `enableShutdownHooks()` for clean database connection teardown and in-flight request completion
 - **Global Exception Filter**: Standardized error responses with no stack trace leaks
 
 ### External Services
 
-| Service | Purpose | Configuration |
-|---------|---------|---------------|
-| **Razorpay** | Online payment processing | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` |
-| **SMTP (Nodemailer)** | Email notifications | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` |
-| **MinIO** | S3-compatible document storage | `MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET` |
-| **Redis** | Rate limiting, caching | `REDIS_URL` |
+| Service                  | Purpose                                  | Configuration                                                               |
+| ------------------------ | ---------------------------------------- | --------------------------------------------------------------------------- |
+| **Razorpay**             | Online payment processing                | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`         |
+| **SMTP (Nodemailer)**    | Email notifications                      | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`                          |
+| **MinIO**                | S3-compatible document storage           | `MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET`    |
+| **SMS (msg91/fast2sms)** | SMS OTP delivery for mobile verification | `SMS_PROVIDER`, `MSG91_AUTH_KEY`, `MSG91_TEMPLATE_ID` or `FAST2SMS_API_KEY` |
+| **Redis**                | Rate limiting, caching                   | `REDIS_URL`                                                                 |
 
 ---
 
@@ -378,6 +466,9 @@ sequenceDiagram
 erDiagram
     User ||--o| OemProfile : has
     User ||--o{ RefreshToken : has
+    User ||--o{ PasswordResetToken : has
+    User ||--o{ EmailChangeToken : has
+    User ||--o{ MobileOtp : has
     User ||--o{ Application : submits
     User ||--o{ Query : raises
     User ||--o{ QueryResponse : responds
@@ -416,6 +507,36 @@ erDiagram
         boolean isVerified
         string firstName
         string lastName
+        string mobile
+        boolean mobileVerified
+        string profilePhotoUrl
+    }
+
+    PasswordResetToken {
+        uuid id PK
+        string token UK
+        uuid userId FK
+        datetime expiresAt
+        datetime usedAt
+    }
+
+    EmailChangeToken {
+        uuid id PK
+        string token UK
+        uuid userId FK
+        string newEmail
+        datetime expiresAt
+        datetime usedAt
+    }
+
+    MobileOtp {
+        uuid id PK
+        string otp
+        uuid userId FK
+        string mobile
+        datetime expiresAt
+        datetime usedAt
+        int attempts
     }
 
     Application {
@@ -496,38 +617,42 @@ erDiagram
     }
 ```
 
-### Key Entities (22 tables)
+### Key Entities (25 tables)
 
-| Entity | Records | Purpose |
-|--------|---------|---------|
-| User | 7 roles | All system users |
-| RefreshToken | Per session | JWT refresh tokens |
-| OemProfile | 1 per OEM | Company details (fields 1-14) |
-| ContactPerson | 2 per app | Commercial + technical contacts |
-| Application | Core entity | 9-step form with 18 status values |
-| ApplicationStatusHistory | Audit | Status transition log |
-| APCDType | Master data | 7 APCD categories with subtypes |
-| ApplicationApcd | Junction | APCD selections per application |
-| Attachment | 26 types | Uploaded documents with geo-tags |
-| InstallationExperience | Min 3/APCD | Past installation proof (Annexure 6a) |
-| FieldVerificationSite | 3 per app | Sites for on-site inspection (Annexure 6b) |
-| StaffDetail | Min 2 eng | Technical team (Annexure 7) |
-| Query | Per issue | Officer/committee queries |
-| QueryResponse | Per query | OEM responses |
-| CommitteeEvaluation | Per member | 8-criterion evaluation |
-| EvaluationScore | Per criterion | Individual scores |
-| FieldReport | Per site | On-site inspection results |
-| Payment | Per fee type | Razorpay + manual payments |
-| Certificate | Per approval | QR-coded empanelment certificates |
-| AuditLog | All actions | Compliance audit trail |
-| Notification | Per event | In-app + email notifications |
-| FeeConfiguration | Per type | Fee amounts and GST rates |
+| Entity                   | Records       | Purpose                                                           |
+| ------------------------ | ------------- | ----------------------------------------------------------------- |
+| User                     | 7 roles       | All system users (+ mobile, mobileVerified, profilePhotoUrl)      |
+| RefreshToken             | Per session   | JWT refresh tokens                                                |
+| PasswordResetToken       | Per request   | Time-limited password reset tokens (used by forgot-password flow) |
+| EmailChangeToken         | Per request   | Email change verification tokens (stores newEmail)                |
+| MobileOtp                | Per request   | SMS OTP records with attempt tracking (max attempts enforced)     |
+| OemProfile               | 1 per OEM     | Company details (fields 1-14)                                     |
+| ContactPerson            | 2 per app     | Commercial + technical contacts                                   |
+| Application              | Core entity   | 9-step form with 18 status values                                 |
+| ApplicationStatusHistory | Audit         | Status transition log                                             |
+| APCDType                 | Master data   | 7 APCD categories with subtypes                                   |
+| ApplicationApcd          | Junction      | APCD selections per application                                   |
+| Attachment               | 26 types      | Uploaded documents with geo-tags                                  |
+| InstallationExperience   | Min 3/APCD    | Past installation proof (Annexure 6a)                             |
+| FieldVerificationSite    | 3 per app     | Sites for on-site inspection (Annexure 6b)                        |
+| StaffDetail              | Min 2 eng     | Technical team (Annexure 7)                                       |
+| Query                    | Per issue     | Officer/committee queries                                         |
+| QueryResponse            | Per query     | OEM responses                                                     |
+| CommitteeEvaluation      | Per member    | 8-criterion evaluation                                            |
+| EvaluationScore          | Per criterion | Individual scores                                                 |
+| FieldReport              | Per site      | On-site inspection results                                        |
+| Payment                  | Per fee type  | Razorpay + manual payments                                        |
+| Certificate              | Per approval  | QR-coded empanelment certificates                                 |
+| AuditLog                 | All actions   | Compliance audit trail                                            |
+| Notification             | Per event     | In-app + email notifications                                      |
+| FeeConfiguration         | Per type      | Fee amounts and GST rates                                         |
 
 ---
 
 ## Deployment & Environment
 
 ### Local Development
+
 ```bash
 # Prerequisites: Node 20+, pnpm 9+, Docker
 docker-compose up -d          # PostgreSQL, MinIO, Redis
@@ -537,11 +662,13 @@ pnpm dev                      # Starts API on :4000, Web on :3000
 ```
 
 ### Docker Deployment
+
 - **API**: Multi-stage Alpine build with esbuild-compiled seed script
 - **Web**: Multi-stage Next.js standalone build
 - **docker-compose.yml**: Full stack (PostgreSQL 15, MinIO, Redis 7, API, Web)
 
 ### Production (Railway)
+
 - Auto-deploy on push to `master` branch
 - Dockerfile-based builds
 - Environment variables configured per service
@@ -549,41 +676,50 @@ pnpm dev                      # Starts API on :4000, Web on :3000
 
 ### Environment Variables (key ones)
 
-| Variable | Required | Default | Purpose |
-|----------|----------|---------|---------|
-| `DATABASE_URL` | Yes | -- | PostgreSQL connection string |
-| `JWT_SECRET` | Yes | -- | JWT signing secret |
-| `JWT_ACCESS_EXPIRY` | No | `15m` | Access token TTL |
-| `MINIO_ENDPOINT` | Yes | -- | Object storage host |
-| `MINIO_ACCESS_KEY` | Yes | -- | MinIO credentials |
-| `MINIO_SECRET_KEY` | Yes | -- | MinIO credentials |
-| `RAZORPAY_KEY_ID` | Yes | -- | Payment gateway key |
-| `RAZORPAY_KEY_SECRET` | Yes | -- | Payment gateway secret |
-| `SMTP_HOST` | No | -- | Email server |
-| `REDIS_URL` | No | -- | Redis for rate limiting |
-| `SEED_SECRET` | No | `apcd-seed-2025` | CI/CD test user reset |
+| Variable                  | Required | Default          | Purpose                              |
+| ------------------------- | -------- | ---------------- | ------------------------------------ |
+| `DATABASE_URL`            | Yes      | --               | PostgreSQL connection string         |
+| `JWT_SECRET`              | Yes      | --               | JWT signing secret                   |
+| `JWT_ACCESS_EXPIRY`       | No       | `15m`            | Access token TTL                     |
+| `MINIO_ENDPOINT`          | Yes      | --               | Object storage host                  |
+| `MINIO_ACCESS_KEY`        | Yes      | --               | MinIO credentials                    |
+| `MINIO_SECRET_KEY`        | Yes      | --               | MinIO credentials                    |
+| `RAZORPAY_KEY_ID`         | Yes      | --               | Payment gateway key                  |
+| `RAZORPAY_KEY_SECRET`     | Yes      | --               | Payment gateway secret               |
+| `SMTP_HOST`               | No       | --               | Email server                         |
+| `REDIS_URL`               | No       | --               | Redis for rate limiting              |
+| `RAZORPAY_WEBHOOK_SECRET` | Yes      | --               | Razorpay webhook HMAC verification   |
+| `SMS_PROVIDER`            | No       | `msg91`          | SMS provider (`msg91` or `fast2sms`) |
+| `MSG91_AUTH_KEY`          | No       | --               | msg91 authentication key             |
+| `MSG91_TEMPLATE_ID`       | No       | --               | msg91 OTP template ID                |
+| `FAST2SMS_API_KEY`        | No       | --               | fast2sms API key                     |
+| `SEED_SECRET`             | No       | `apcd-seed-2025` | CI/CD test user reset                |
 
 ---
 
 ## Non-Functional Requirements
 
 ### Performance
+
 - API response time: < 500ms for standard CRUD, < 2s for report generation
 - File upload: Support up to 10MB per file, 100MB total per application
 - Database: Indexed on `status`, `applicantId`, `applicationNumber`, `documentType`
 
 ### Scalability
+
 - Stateless API design (JWT-based, no server sessions)
 - MinIO for horizontally scalable object storage
 - Redis for distributed rate limiting
 - Database connection pooling via Prisma
 
 ### Reliability
+
 - Database migrations via Prisma Migrate (idempotent `deploy`)
 - Refresh token rotation (old token revoked on use)
 - Audit log for all state-changing operations
 
 ### Security
+
 - OWASP-aligned: input validation (class-validator), parameterized queries (Prisma), no raw SQL
 - Helmet security headers
 - Rate limiting (100 req/60s)
@@ -591,31 +727,34 @@ pnpm dev                      # Starts API on :4000, Web on :3000
 - No password or secret logging
 
 ### Observability
+
 - Structured error responses (HttpExceptionFilter)
 - Audit log interceptor captures all mutations
+- Performance interceptor logs slow requests (>2s) with request path, duration, HTTP method, and authenticated user context
 - Console logging for unhandled exceptions with stack traces
 
 ---
 
 ## Key Design Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| **API Style** | REST | Fits CRUD-heavy domain; simpler than GraphQL for document workflows |
-| **Architecture** | Modular monolith (NestJS) | Right complexity for the team size; modules are well-separated for future extraction |
-| **ORM** | Prisma | Type-safe queries, excellent migration system, good DX |
-| **Auth** | JWT + DB-stored refresh tokens | Stateless access tokens + revocable refresh tokens balances performance and security |
-| **File Storage** | MinIO (S3-compatible) | Self-hosted, cheaper than AWS S3 for government use; easy to swap to S3 later |
-| **Monorepo** | Turborepo + pnpm | Shared types/constants between frontend and backend; parallel builds |
-| **Frontend State** | Zustand + React Query | Zustand for auth state; React Query for server state caching |
-| **Payments** | Razorpay + manual NEFT | Razorpay for online; manual NEFT for government payment workflows |
-| **Password Hashing** | bcryptjs (pure JS) | Docker Alpine compatibility; identical output format to native bcrypt |
-| **E2E Testing** | Playwright | Cross-browser support, reliable selectors, parallel execution |
+| Decision             | Choice                         | Rationale                                                                            |
+| -------------------- | ------------------------------ | ------------------------------------------------------------------------------------ |
+| **API Style**        | REST                           | Fits CRUD-heavy domain; simpler than GraphQL for document workflows                  |
+| **Architecture**     | Modular monolith (NestJS)      | Right complexity for the team size; modules are well-separated for future extraction |
+| **ORM**              | Prisma                         | Type-safe queries, excellent migration system, good DX                               |
+| **Auth**             | JWT + DB-stored refresh tokens | Stateless access tokens + revocable refresh tokens balances performance and security |
+| **File Storage**     | MinIO (S3-compatible)          | Self-hosted, cheaper than AWS S3 for government use; easy to swap to S3 later        |
+| **Monorepo**         | Turborepo + pnpm               | Shared types/constants between frontend and backend; parallel builds                 |
+| **Frontend State**   | Zustand + React Query          | Zustand for auth state; React Query for server state caching                         |
+| **Payments**         | Razorpay + manual NEFT         | Razorpay for online; manual NEFT for government payment workflows                    |
+| **Password Hashing** | bcryptjs (pure JS)             | Docker Alpine compatibility; identical output format to native bcrypt                |
+| **E2E Testing**      | Playwright                     | Cross-browser support, reliable selectors, parallel execution                        |
 
 ### Trade-offs and Known Limitations
+
 - **No real-time updates**: Polling-based; WebSocket/SSE could be added for notifications
 - **Single database**: No read replicas; sufficient for current scale (~1000 OEMs)
-- **Email-only notifications**: SMS integration is stubbed but not implemented
+- **Email + SMS notifications**: SMS integration implemented via provider pattern (msg91/fast2sms); currently used only for mobile OTP verification, not general notifications
 - **No CDN**: Static assets served by Next.js; CDN can be added in front
 - **Certificate PDF**: Generated server-side via pdfkit; no template customization UI
 
@@ -624,18 +763,21 @@ pnpm dev                      # Starts API on :4000, Web on :3000
 ## Guidelines for Future Changes
 
 ### Adding New Features
+
 1. **New API module**: Create under `apps/api/src/modules/<name>/` with controller, service, module, and DTOs
 2. **New frontend page**: Create under `apps/web/src/app/<route>/page.tsx` using the existing dashboard layout
 3. **New database entity**: Add to `packages/database/prisma/schema.prisma`, run `pnpm db:migrate`
 4. **New shared types**: Add to `packages/shared/src/types/` and re-export from `index.ts`
 
 ### Avoiding Breaking Changes
+
 - Never modify existing API response shapes without versioning or feature flags
 - Always add new columns as optional (nullable) to avoid migration failures
 - Run `pnpm type-check` before committing to catch cross-package breakage
 - Keep the `@Public()` decorator explicit -- never remove auth from protected endpoints
 
 ### Pre-Merge Checklist
+
 1. `pnpm lint` passes
 2. `pnpm type-check` passes
 3. `pnpm test` passes (unit tests)

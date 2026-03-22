@@ -37,6 +37,36 @@ railway open
 
 ---
 
+## Railway Deployment (Current Staging)
+
+**Live URLs:**
+
+- Web: https://npc-apcd-portal.up.railway.app
+- API: https://apcd-api-production-415f.up.railway.app
+
+**Services:**
+
+- apcd-api: Root Dockerfile, port 4000, health check /api/health
+- Web: apps/web/Dockerfile, port 3000
+- PostgreSQL: Railway managed, internal networking
+- Redis: Railway managed, internal networking
+- Volume: /app/uploads on API service for file persistence
+
+**Required env vars for API service:**
+NODE_ENV, PORT, DATABASE_URL, REDIS_URL, JWT_SECRET, JWT_REFRESH_SECRET, APP_URL, STORAGE_TYPE, SMTP_ENABLED, SMS_PROVIDER, THROTTLE_TTL, THROTTLE_LIMIT
+
+**Required env vars for Web service:**
+NODE_ENV, PORT, API_URL, NEXT_PUBLIC_API_URL, NEXTAUTH_URL, NEXTAUTH_SECRET
+
+**Important notes:**
+
+- API_URL must be set as build arg in web Dockerfile (Next.js rewrites baked at build time)
+- APP_URL on API must match web domain for CORS
+- Use internal URLs for DATABASE_URL and REDIS_URL (postgres.railway.internal, redis.railway.internal)
+- railway.toml was removed -- configure health checks per-service in Railway dashboard
+
+---
+
 ## 🐳 Docker Compose (Self-Hosted)
 
 ### Prerequisites
