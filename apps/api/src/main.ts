@@ -80,11 +80,8 @@ async function bootstrap() {
   app.use(compression());
 
   // JSON body size limit (1MB) — prevents payload-based DoS
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const express = require('express');
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.use(express.json({ limit: '1mb' }));
-  expressApp.use(express.urlencoded({ limit: '1mb', extended: true }));
+  app.useBodyParser('json', { limit: '1mb' });
+  app.useBodyParser('urlencoded', { limit: '1mb' });
 
   // Graceful shutdown — close DB connections cleanly on SIGTERM
   app.enableShutdownHooks();
