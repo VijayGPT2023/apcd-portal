@@ -93,8 +93,8 @@ export default function RegisterPage() {
       setAuth(user, authData.accessToken, authData.refreshToken);
 
       toast({
-        title: 'Registration Successful',
-        description: 'Welcome! You can now start your empanelment application.',
+        title: t('auth.registrationSuccessful'),
+        description: t('auth.registrationWelcome'),
       });
 
       // Redirect to OEM dashboard to start application
@@ -103,14 +103,14 @@ export default function RegisterPage() {
       const status = (error as any)?.response?.status;
       const title =
         status === 409
-          ? 'Email Already Registered'
+          ? t('auth.emailAlreadyRegistered')
           : status === 400
-            ? 'Invalid Registration Details'
-            : 'Registration Failed';
+            ? t('auth.invalidRegistration')
+            : t('auth.registrationFailed');
       toast({
         variant: 'destructive',
         title,
-        description: getApiErrorMessage(error, 'Registration failed. Please try again.'),
+        description: getApiErrorMessage(error, t('auth.registrationFailedMsg')),
       });
     } finally {
       setIsLoading(false);

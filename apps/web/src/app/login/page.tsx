@@ -76,8 +76,8 @@ export default function LoginPage() {
       setAuth(user, authData.accessToken, authData.refreshToken);
 
       toast({
-        title: 'Login Successful',
-        description: `Welcome back, ${user.name}!`,
+        title: t('auth.loginSuccessful'),
+        description: `${t('auth.welcomeBack')} ${user.name}!`,
       });
 
       // Redirect based on role
@@ -96,14 +96,14 @@ export default function LoginPage() {
       const status = (error as any)?.response?.status;
       const title =
         status === 401
-          ? 'Invalid Credentials'
+          ? t('auth.invalidCredentials')
           : status === 429
-            ? 'Too Many Attempts'
-            : 'Login Failed';
+            ? t('auth.tooManyAttempts')
+            : t('auth.loginFailed');
       toast({
         variant: 'destructive',
         title,
-        description: getApiErrorMessage(error, 'Login failed. Please try again.'),
+        description: getApiErrorMessage(error, t('auth.loginFailedMsg')),
       });
     } finally {
       setIsLoading(false);

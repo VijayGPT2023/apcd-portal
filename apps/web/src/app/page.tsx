@@ -84,121 +84,113 @@ export default function HomePage() {
 
   const faqs = [
     {
-      question: 'Who can apply for empanelment?',
-      answer:
-        'Manufacturers of Air Pollution Control Devices (APCDs) with valid GST registration, manufacturing facilities in India, at least 3 years of operating history, and a minimum of 3 APCD installations can apply.',
+      question: t('home.faq1Q'),
+      answer: t('home.faq1A'),
     },
     {
-      question: 'What documents are required?',
-      answer:
-        'Company registration certificates, GST registration, PAN card, manufacturing facility proof, product catalogs, NABL-accredited test reports, ISO certifications (if available), and installation experience proof (minimum 3 installations).',
+      question: t('home.faq2Q'),
+      answer: t('home.faq2A'),
     },
     {
-      question: 'How long does the process take?',
-      answer:
-        'The complete empanelment process typically takes 45-60 working days after submission of a complete application with all required documents.',
+      question: t('home.faq3Q'),
+      answer: t('home.faq3A'),
     },
     {
-      question: 'What is the validity of the certificate?',
-      answer:
-        'The empanelment certificate is valid for 2 years from the date of issuance and can be renewed before expiry.',
+      question: t('home.faq4Q'),
+      answer: t('home.faq4A'),
     },
     {
-      question: 'What are the fees for empanelment?',
-      answer:
-        'The application fee is \u20B925,000 plus \u20B965,000 per APCD type selected, plus 18% GST. MSE/DPIIT-recognized startups and Class-I local suppliers are eligible for a 15% discount.',
+      question: t('home.faq5Q'),
+      answer: t('home.faq5A'),
     },
     {
-      question: 'Can I apply for multiple APCD categories?',
-      answer:
-        'Yes, you can select multiple APCD categories in a single application. Each additional APCD type has a separate fee of \u20B965,000.',
+      question: t('home.faq6Q'),
+      answer: t('home.faq6A'),
     },
     {
-      question: 'What is Provisional Empanelment?',
-      answer:
-        'Provisional Empanelment is granted after verification and fulfillment of all required documents. Based on the document evaluation, the Evaluation Committee recommends the applicant for Provisional Empanelment. This status remains valid until completion of field evaluation.',
+      question: t('home.faq7Q'),
+      answer: t('home.faq7A'),
     },
     {
-      question: 'What is Final Empanelment and Field Verification Process?',
-      answer:
-        'After Provisional Empanelment, field verification is conducted by the Field Verification Team along with laboratory monitoring to assess operational and technical compliance. Based on the findings and submission of the field verification report, the Committee may recommend the applicant for Final Empanelment. Final Empanelment is valid for a period of two (2) years. The field verification fee is \u20B957,000/- plus applicable GST.',
+      question: t('home.faq8Q'),
+      answer: t('home.faq8A'),
     },
   ];
 
   const apcdCategories = [
     {
-      name: 'ESP Systems',
-      description: 'Electrostatic Precipitator Systems for industrial emission control',
+      name: t('home.espSystems'),
+      description: t('home.espDesc'),
       icon: Zap,
     },
     {
-      name: 'Bag Filters',
-      description: 'High-efficiency filtration systems for particulate control',
+      name: t('home.bagFilters'),
+      description: t('home.bagFiltersDesc'),
       icon: Filter,
     },
     {
-      name: 'Scrubbers',
-      description: 'Wet and dry scrubbing systems for gas cleaning',
+      name: t('home.scrubbers'),
+      description: t('home.scrubbersDesc'),
       icon: Droplets,
     },
     {
-      name: 'Cyclones',
-      description: 'Centrifugal separators for dust collection',
+      name: t('home.cyclones'),
+      description: t('home.cyclonesDesc'),
       icon: Wind,
     },
     {
-      name: 'Fume Extraction',
-      description: 'Industrial fume and dust extraction systems',
+      name: t('home.fumeExtraction'),
+      description: t('home.fumeExtractionDesc'),
       icon: Fan,
     },
   ];
 
   const whyChooseFeatures = [
     {
-      title: 'Fast Approval',
-      description: 'Get approved in 7-10 working days with our streamlined process.',
+      title: t('home.fastApproval'),
+      description: t('home.fastApprovalDesc'),
       icon: Zap,
     },
     {
-      title: 'Real-time Tracking',
-      description: 'Track your application status live with detailed updates.',
+      title: t('home.realtimeTracking'),
+      description: t('home.realtimeTrackingDesc'),
       icon: BarChart3,
     },
     {
-      title: 'Secure & Transparent',
-      description: 'Bank-level security with complete transparency in process.',
+      title: t('home.secureTransparentFeature'),
+      description: t('home.secureTransparentFeatureDesc'),
       icon: Shield,
     },
     {
-      title: 'Government Verified',
-      description: 'Official portal backed by CPCB and MoEFCC.',
+      title: t('home.govVerified'),
+      description: t('home.govVerifiedDesc'),
       icon: BadgeCheck,
     },
     {
-      title: 'Digital Certificates',
-      description: 'Instant digital certificate download upon approval.',
+      title: t('home.digitalCerts'),
+      description: t('home.digitalCertsDesc'),
       icon: Award,
     },
     {
-      title: '100% Online',
-      description: 'Complete paperless process with online document submission.',
+      title: t('home.onlineFeature'),
+      description: t('home.onlineFeatureDesc'),
       icon: Globe,
     },
   ];
 
   const testimonials = [
     {
-      quote: 'The application process is simple and transparent. Got approved in just 10 days!',
+      quote: t('home.testimonial1'),
       name: 'Rajesh Kumar',
       company: 'Green Tech Solutions',
     },
     {
-      quote: 'Easy document upload and real-time tracking system. Very professional portal.',
+      quote: t('home.testimonial2'),
       name: 'Priya Mehta',
       company: 'EcoClean Industries',
     },
     {
-      quote: 'The admin support was excellent. They guided us through the entire process.',
+      quote: t('home.testimonial3'),
       name: 'Amit Singh',
       company: 'Air Quality Systems',
     },
@@ -206,36 +198,44 @@ export default function HomePage() {
 
   const feeCards = [
     {
-      title: 'Application Fee',
+      title: t('home.applicationFee'),
       amount: '\u20B925,000',
       gst: '+18% GST',
-      subtitle: 'One-time (Non-refundable)',
-      bullets: ['Company registration on portal', 'Profile setup', 'Document verification'],
-      note: 'Pay at initial application',
+      subtitle: t('home.oneTimeNonRefundable'),
+      bullets: [
+        t('home.companyRegistration'),
+        t('home.profileSetup'),
+        t('home.documentVerification'),
+      ],
+      note: t('home.payAtInitial'),
     },
     {
-      title: 'Product Fee',
+      title: t('home.productFee'),
       amount: '\u20B965,000',
       gst: '+18% GST',
-      subtitle: 'Per APCD product type',
-      bullets: ['Per APCD model type', 'Technical evaluation', 'Digital certificate issuance'],
-      note: 'Pay during empanelment submission',
+      subtitle: t('home.perApcdProductType'),
+      bullets: [
+        t('home.perApcdModelType'),
+        t('home.technicalEvaluation'),
+        t('home.digitalCertIssuance'),
+      ],
+      note: t('home.payDuringSubmission'),
     },
     {
-      title: 'Field Verification Fee',
+      title: t('home.fieldVerificationFee'),
       amount: '\u20B957,000',
       gst: '+18% GST',
-      subtitle: 'Per verification visit',
-      bullets: ['On-site inspection (if required)', 'Validation of submitted data'],
-      note: 'Charged only when applicable',
+      subtitle: t('home.perVerificationVisit'),
+      bullets: [t('home.onsiteInspection'), t('home.validationOfData')],
+      note: t('home.chargedWhenApplicable'),
     },
     {
-      title: 'Annual Renewal Fee',
+      title: t('home.annualRenewalFee'),
       amount: '\u20B935,000',
       gst: '+18% GST',
-      subtitle: 'Per year',
-      bullets: ['Renewal of empanelment validity', 'Continuous compliance'],
-      note: 'Pay 60 days before expiry',
+      subtitle: t('home.perYear'),
+      bullets: [t('home.renewalValidity'), t('home.continuousCompliance')],
+      note: t('home.payBeforeExpiry'),
     },
   ];
 
@@ -284,7 +284,7 @@ export default function HomePage() {
         {/* Decorative badge */}
         <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs sm:text-sm font-medium flex items-center gap-2">
           <Globe className="h-4 w-4" />
-          100% Online Process
+          {t('home.onlineProcess')}
         </div>
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
@@ -320,15 +320,15 @@ export default function HomePage() {
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 text-center">
                   <div className="text-2xl sm:text-3xl font-bold">500+</div>
-                  <div className="text-xs sm:text-sm text-blue-200">Approved OEMs</div>
+                  <div className="text-xs sm:text-sm text-blue-200">{t('home.approvedOems')}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 text-center">
                   <div className="text-2xl sm:text-3xl font-bold">7-10</div>
-                  <div className="text-xs sm:text-sm text-blue-200">Days Approval</div>
+                  <div className="text-xs sm:text-sm text-blue-200">{t('home.daysApproval')}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 text-center">
                   <div className="text-2xl sm:text-3xl font-bold">98%</div>
-                  <div className="text-xs sm:text-sm text-blue-200">Success Rate</div>
+                  <div className="text-xs sm:text-sm text-blue-200">{t('home.successRate')}</div>
                 </div>
               </div>
             </div>
@@ -336,8 +336,8 @@ export default function HomePage() {
             <div className="hidden lg:flex justify-center items-center">
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 sm:p-10 text-center max-w-sm">
                 <BadgeCheck className="h-16 w-16 mx-auto mb-4 text-white" />
-                <h3 className="text-xl font-bold mb-2">Certified & Verified</h3>
-                <p className="text-blue-200 text-sm">By CPCB & MoEFCC</p>
+                <h3 className="text-xl font-bold mb-2">{t('home.certifiedVerified')}</h3>
+                <p className="text-blue-200 text-sm">{t('home.byCpcbMoefcc')}</p>
                 <div className="mt-6 flex justify-center gap-4">
                   <div className="bg-white/20 rounded-lg px-4 py-2 text-sm font-medium">CPCB</div>
                   <div className="bg-white/20 rounded-lg px-4 py-2 text-sm font-medium">MoEFCC</div>
@@ -352,10 +352,8 @@ export default function HomePage() {
       <section className="py-12 sm:py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Quick Action</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Get started with your empanelment journey
-            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('home.quickAction')}</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">{t('home.quickActionDesc')}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <Card className="hover:shadow-lg transition-shadow">
@@ -365,13 +363,13 @@ export default function HomePage() {
                     <FileText className="h-6 w-6 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold mb-1">Start Application</h3>
+                    <h3 className="font-semibold mb-1">{t('home.startApplicationCard')}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Start your empanelment application in minutes
+                      {t('home.startApplicationCardDesc')}
                     </p>
                     <Link href="/register">
                       <Button size="sm" className="bg-gov-blue hover:bg-blue-700">
-                        Get Start
+                        {t('home.getStart')}
                         <ChevronRight className="ml-1 h-4 w-4" />
                       </Button>
                     </Link>
@@ -386,13 +384,13 @@ export default function HomePage() {
                     <BarChart3 className="h-6 w-6 text-green-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold mb-1">Track Application</h3>
+                    <h3 className="font-semibold mb-1">{t('home.trackApplication')}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Check your application real time
+                      {t('home.trackApplicationDesc')}
                     </p>
                     <Link href="/login">
                       <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                        Track Now
+                        {t('home.trackNow')}
                         <ChevronRight className="ml-1 h-4 w-4" />
                       </Button>
                     </Link>
@@ -407,13 +405,13 @@ export default function HomePage() {
                     <CheckCircle2 className="h-6 w-6 text-orange-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold mb-1">Check Eligibility</h3>
+                    <h3 className="font-semibold mb-1">{t('home.checkEligibility')}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Verify if you meet the requirements
+                      {t('home.verifyRequirements')}
                     </p>
                     <Link href="/check-eligibility">
                       <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
-                        Check Now
+                        {t('home.checkNow')}
                         <ChevronRight className="ml-1 h-4 w-4" />
                       </Button>
                     </Link>
@@ -495,7 +493,7 @@ export default function HomePage() {
           <div className="text-center mt-10">
             <div className="inline-flex items-center gap-2 bg-blue-50 text-gov-blue px-5 py-2.5 rounded-full text-sm font-medium">
               <Clock className="h-4 w-4" />
-              Average completion time: 7-10 working days
+              {t('home.avgCompletionTime')}
             </div>
           </div>
         </div>
@@ -516,18 +514,18 @@ export default function HomePage() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    Eligibility Criteria
+                    {t('home.eligibilityCriteriaTitle')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
                     {[
-                      'Valid GST Registration',
-                      'Company PAN Card',
-                      'Minimum 3 years of manufacturing experience',
-                      'At least 3 successful installations',
-                      'Technical capability and infrastructure',
-                      'Quality management system (ISO preferred)',
+                      t('home.validGst'),
+                      t('home.companyPan'),
+                      t('home.min3Years'),
+                      t('home.min3Installations'),
+                      t('home.techCapability'),
+                      t('home.qualityMgmt'),
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
@@ -541,18 +539,18 @@ export default function HomePage() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <FileText className="h-5 w-5 text-blue-500" />
-                    Required Documents
+                    {t('home.requiredDocumentsTitle')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
                     {[
-                      'GST Registration Certificate',
-                      'Company PAN Card',
-                      'Certificate of Incorporation',
-                      'Client installation certificates',
-                      'Technical specification sheets',
-                      'ISO/Quality certifications (if available)',
+                      t('home.gstCertificate'),
+                      t('home.companyPanCard'),
+                      t('home.certIncorporation'),
+                      t('home.clientInstallCerts'),
+                      t('home.techSpecSheets'),
+                      t('home.isoQualityCerts'),
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
@@ -567,13 +565,13 @@ export default function HomePage() {
               <Link href="/check-eligibility">
                 <Button size="lg" className="bg-gov-blue hover:bg-blue-700 w-full sm:w-auto">
                   <CheckCircle2 className="mr-2 h-5 w-5" />
-                  Check Eligibility & Apply
+                  {t('home.checkEligibilityApply')}
                 </Button>
               </Link>
               <Link href="mailto:apcd-support@npcindia.gov.in">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
                   <Mail className="mr-2 h-5 w-5" />
-                  Have questions? Contact our support team
+                  {t('home.haveQuestionsContact')}
                 </Button>
               </Link>
             </div>
@@ -604,8 +602,7 @@ export default function HomePage() {
             ))}
           </div>
           <p className="text-center text-sm text-muted-foreground mt-6">
-            <span className="font-medium">Note:</span> You can apply for empanelment in multiple
-            categories
+            {t('home.multiCategoryNote')}
           </p>
         </div>
       </section>
@@ -614,8 +611,8 @@ export default function HomePage() {
       <section className="py-16 bg-gray-900 text-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Why Choose Our Portal?</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">Modern, efficient, and transparent</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('home.whyChoose')}</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">{t('home.whyChooseDesc')}</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {whyChooseFeatures.map((feature, index) => (
@@ -638,8 +635,8 @@ export default function HomePage() {
       <section className="py-12 sm:py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Trusted By</h2>
-            <p className="text-muted-foreground">Official partners and regulatory bodies</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('home.trustedBy')}</h2>
+            <p className="text-muted-foreground">{t('home.trustedByDesc')}</p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-4xl mx-auto">
             {['CPCB', 'MoEFCC', 'NPC', 'DPIIT', 'MeitY'].map((org) => (
@@ -658,8 +655,8 @@ export default function HomePage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">What Our Users Say</h2>
-            <p className="text-muted-foreground">Real feedback from empanelled OEMs</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('home.testimonials')}</h2>
+            <p className="text-muted-foreground">{t('home.testimonialsDesc')}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {testimonials.map((item, index) => (
@@ -688,8 +685,8 @@ export default function HomePage() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Fee Structure</h2>
-            <p className="text-muted-foreground">Transparent pricing with no hidden charges</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('home.feeStructure')}</h2>
+            <p className="text-muted-foreground">{t('home.feeStructureDesc')}</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {feeCards.map((fee, index) => (
@@ -720,9 +717,7 @@ export default function HomePage() {
           </div>
           <div className="text-center mt-8">
             <div className="inline-block bg-white border rounded-lg px-6 py-3 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">Example:</span> For 3 product
-              categories, total fee = {'\u20B9'}25,000 + (3 {'\u00D7'} {'\u20B9'}65,000) + GST (18%)
-              = {'\u20B9'}2,59,600
+              {t('home.feeExample')}
             </div>
           </div>
         </div>
@@ -758,12 +753,12 @@ export default function HomePage() {
       <section className="py-8 bg-gray-50">
         <div className="container mx-auto px-4 text-center">
           <p className="text-muted-foreground">
-            Still have questions?{' '}
+            {t('home.stillHaveQuestions')}{' '}
             <Link
               href="mailto:apcd-support@npcindia.gov.in"
               className="text-gov-blue font-medium hover:underline"
             >
-              Contact our support team &rarr;
+              {t('home.contactSupport')}
             </Link>
           </p>
         </div>
@@ -812,11 +807,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="font-semibold mb-4">{t('home.about')}</h3>
-              <p className="text-sm text-gray-400">
-                The APCD OEM Empanelment Portal is an initiative by the National Productivity
-                Council for the Central Pollution Control Board to streamline the empanelment of Air
-                Pollution Control Device manufacturers.
-              </p>
+              <p className="text-sm text-gray-400">{t('home.footerAboutText')}</p>
             </div>
             <div>
               <h3 className="font-semibold mb-4">{t('home.quickLinks')}</h3>
@@ -843,12 +834,12 @@ export default function HomePage() {
                 </li>
                 <li>
                   <Link href="/privacy-policy" className="hover:text-white">
-                    Privacy Policy
+                    {t('home.privacyPolicy')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/terms-of-use" className="hover:text-white">
-                    Terms of Use
+                    {t('home.termsOfUse')}
                   </Link>
                 </li>
                 <li>
@@ -858,7 +849,7 @@ export default function HomePage() {
                     rel="noopener noreferrer"
                     className="hover:text-white"
                   >
-                    CPCB Website
+                    {t('home.cpcbWebsite')}
                   </a>
                 </li>
               </ul>
@@ -866,10 +857,10 @@ export default function HomePage() {
             <div>
               <h3 className="font-semibold mb-4">{t('home.contact')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>National Productivity Council</li>
-                <li>Utpadakta Bhawan, 5-6 Institutional Area</li>
-                <li>Lodhi Road, New Delhi - 110003</li>
-                <li>Email: apcd-support@npcindia.gov.in</li>
+                <li>{t('home.npcAddress1')}</li>
+                <li>{t('home.npcAddress2')}</li>
+                <li>{t('home.npcAddress3')}</li>
+                <li>{t('home.npcEmail')}</li>
               </ul>
             </div>
           </div>
