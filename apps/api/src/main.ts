@@ -39,7 +39,11 @@ async function bootstrap() {
     );
   }, 30000);
 
-  const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log'],
+    bodyParser: true,
+    rawBody: true,
+  });
   clearTimeout(startupTimer);
   console.log('NestJS application created successfully');
   const configService = app.get(ConfigService);
@@ -79,9 +83,8 @@ async function bootstrap() {
   // Gzip compression for all responses
   app.use(compression());
 
-  // JSON body size limit (1MB) — prevents payload-based DoS
-  app.useBodyParser('json', { limit: '1mb' });
-  app.useBodyParser('urlencoded', { limit: '1mb' });
+  // JSON body size limit (1MB) is configured via NestFactory.create rawBody option
+  // Express default is 100kb; we accept up to 1MB for base64-encoded photos in profile updates
 
   // Graceful shutdown — close DB connections cleanly on SIGTERM
   app.enableShutdownHooks();
